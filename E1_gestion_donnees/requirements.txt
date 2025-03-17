@@ -1,0 +1,12 @@
+scrapy
+scrapy-playwright
+pandas
+numpy
+fastapi
+uvicorn
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
+aiohttp
+Pillow
+python-dotenv

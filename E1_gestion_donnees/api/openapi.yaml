@@ -1,0 +1,71 @@
+openapi: 3.0.0
+info:
+  title: API Détection d'Armes
+  description: API REST pour accéder aux données des produits e-commerce
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000
+    description: Serveur de développement
+paths:
+  /token:
+    post:
+      summary: Obtenir un token d'authentification
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Token généré avec succès
+  /products/:
+    get:
+      summary: Liste des produits
+      parameters:
+        - name: skip
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Liste des produits
+  /products/{product_id}:
+    get:
+      summary: Détails d'un produit
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Détails du produit
+  /products/{product_id}/images:
+    get:
+      summary: Récupérer les images d'un produit
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Liste des URLs d'images 
