@@ -16,7 +16,7 @@ env_path = Path(__file__).parent / '.env'
 load_dotenv(env_path)
 
 app = FastAPI(
-    title="API Détection d'Armes",
+    title="API Données Web pour Détection d'Armes",
     description="API REST pour accéder aux données des produits e-commerce",
     version="1.0.0"
 )
