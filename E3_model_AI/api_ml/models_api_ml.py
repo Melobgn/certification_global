@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import Optional, List
 from datetime import datetime
 
@@ -8,9 +8,7 @@ class Product(BaseModel):
     title: str
     description: str
 
-    # Configuration pour Pydantic
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ProductWithPrediction(Product):
     is_weapon_pred: int
