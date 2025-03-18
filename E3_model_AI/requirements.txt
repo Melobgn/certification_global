@@ -1,4 +1,14 @@
 pandas
+numpy
 scikit-learn
 xgboost
 openpyxl
+python-dotenv
+fastapi
+uvicorn
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
+pytest
+httpx
+pytest-cov

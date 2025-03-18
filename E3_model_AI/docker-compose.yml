@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: api_ml/Dockerfile  # Modifier le chemin vers le bon Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./api_ml/.env:/app/api_ml/.env  # Charge le fichier .env dans le conteneur
+      - ./model_ml:/app/model_ml  # Monte le dossier contenant le modèle
+      - ./tests:/app/tests
+    restart: unless-stopped
+    env_file:
+      - api_ml/.env  # Ajout explicite de l'env pour plus de clarté
+    command: ["uvicorn", "api_ml.main_api_ml:app", "--host", "0.0.0.0", "--port", "8000"]
