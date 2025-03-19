@@ -19,18 +19,19 @@ IS_DOCKER = os.path.exists("/app")
 # 2️⃣ Détecter si on est dans GitHub Actions
 IS_CI = os.getenv("GITHUB_ACTIONS") == "true"
 
-# 3️⃣ Appliquer le bon chemin selon l'environnement détecté
+# 2️⃣ Définir le chemin racine du projet
 if IS_DOCKER:
-    MODEL_PATH = Path("/app/model_ml/model_xgb.json")
-    VECTORIZER_PATH = Path("/app/model_ml/vectorizer.pkl")
+    BASE_DIR = Path("/app")  # 🔥 Docker
 elif IS_CI:
-    MODEL_PATH = Path("../model_ml/model_xgb.json")  # ✅ Chemin correct depuis api_ml/
-    VECTORIZER_PATH = Path("../model_ml/vectorizer.pkl")
+    BASE_DIR = Path(os.getenv("GITHUB_WORKSPACE", "/home/runner/work/certification_global/certification_global/E3_model_AI"))  # 🔥 GitHub Actions
 else:
-    MODEL_PATH = Path("../model_ml/model_xgb.json")  # ✅ Local, même chemin que GitHub Actions
-    VECTORIZER_PATH = Path("../model_ml/vectorizer.pkl")
+    BASE_DIR = Path("/home/utilisateur/Documents/Certification/certification_global/E3_model_AI")  # 🔥 Local
 
-# Affichage pour debug
+# 3️⃣ Définir les chemins du modèle
+MODEL_PATH = BASE_DIR / "model_ml" / "model_xgb.json"
+VECTORIZER_PATH = BASE_DIR / "model_ml" / "vectorizer.pkl"
+
+# 📌 Affichage pour debug
 print(f"🔍 Détection de l'environnement → Docker={IS_DOCKER}, GitHub Actions={IS_CI}")
 print(f"📂 Utilisation des fichiers → {MODEL_PATH}, {VECTORIZER_PATH}")
 
