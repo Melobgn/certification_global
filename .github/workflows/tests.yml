@@ -6,14 +6,40 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          lfs: true  # 🔥 Assure que Git LFS est activé pour récupérer les fichiers modèles si nécessaire
+
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
           python-version: "3.9"
+
       - name: Install dependencies
         run: |
           pip install -r E3_model_AI/requirements.txt
+
+      - name: Vérifier les fichiers après le clone
+        run: |
+          echo "🔍 Vérification des fichiers après le clone"
+          ls -la E3_model_AI/model_ml/
+
+      - name: Récupérer les fichiers Git LFS (si utilisé)
+        run: git lfs pull
+
+      - name: Vérifier si le modèle XGBoost est bien là
+        run: |
+          if [ ! -f "E3_model_AI/model_ml/model_xgb.json" ]; then
+            echo "❌ Le modèle XGBoost n'a pas été trouvé !"
+            exit 1
+          fi
+          if [ ! -f "E3_model_AI/model_ml/vectorizer.pkl" ]; then
+            echo "❌ Le vectorizer n'a pas été trouvé !"
+            exit 1
+          fi
+          echo "✅ Le modèle et le vectorizer sont présents."
+
       - name: Run Tests
         run: |
           pytest E3_model_AI/tests/ --cov=api_ml --cov=model_ml --cov-report=term-missing
