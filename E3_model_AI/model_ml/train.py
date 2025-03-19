@@ -11,7 +11,8 @@ import pickle
 parser = argparse.ArgumentParser(description="Entraînement du modèle XGBoost pour la détection d'armes.")
 parser.add_argument("--input", required=True, help="Chemin du fichier CSV d'entrée.")
 parser.add_argument("--annotations", required=True, help="Chemin du fichier des annotations (Excel).")
-parser.add_argument("--model_output", required=True, help="Chemin du fichier modèle sauvegardé (.pkl).")
+parser.add_argument("--model_output", required=True, help="Chemin du fichier modèle sauvegardé (.json).")
+parser.add_argument("--vectorizer_output", required=True, help="Chemin du fichier vectorizer sauvegardé (.pkl).")
 args = parser.parse_args()
 
 # Vérification des fichiers
@@ -61,8 +62,12 @@ print("Évaluation du modèle...")
 y_pred = model.predict(X_test_vect)
 print(classification_report(y_test, y_pred))
 
-# Sauvegarde du modèle et du vectorizer
-with open(args.model_output, "wb") as f:
-    pickle.dump({"model": model, "vectorizer": vectorizer}, f)
+# Sauvegarde du modèle XGBoost au format JSON
+model.save_model(args.model_output)
 
-print(f"Modèle sauvegardé sous {args.model_output}.")
+# Sauvegarde du vectorizer séparément avec pickle
+with open(args.vectorizer_output, "wb") as f:
+    pickle.dump(vectorizer, f)
+
+print(f"Modèle XGBoost sauvegardé sous {args.model_output}.")
+print(f"Vectorizer sauvegardé sous {args.vectorizer_output}.")

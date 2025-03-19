@@ -3,7 +3,8 @@
 # Définition des chemins des fichiers
 SCRAPING_OUTPUT="/home/utilisateur/Documents/Certification/certification_global/E3_model_AI/model_ml/products_xgboost.csv"
 ANNOTATIONS_FILE="/home/utilisateur/Documents/Certification/certification_global/E3_model_AI/model_ml/dataset_annotation_ok.xlsx"
-MODEL_FILE="/home/utilisateur/Documents/Certification/certification_global/E3_model_AI/model_ml/model_xgb.pkl"
+MODEL_FILE="/home/utilisateur/Documents/Certification/certification_global/E3_model_AI/model_ml/model_xgb.json"  
+VECTORIZER_FILE="/home/utilisateur/Documents/Certification/certification_global/E3_model_AI/model_ml/vectorizer.pkl"  
 XGBOOST_OUTPUT="/home/utilisateur/Documents/Certification/certification_global/E3_model_AI/model_ml/predictions_xgboost.csv"
 
 # Vérifier que le fichier concaténé existe
@@ -18,13 +19,14 @@ if [ ! -f "$ANNOTATIONS_FILE" ]; then
     exit 1
 fi
 
-# Étape 1 : Entraîner le modèle XGBoost (uniquement si le modèle n'existe pas)
-if [ ! -f "$MODEL_FILE" ]; then
-    echo "Entraînement du modèle XGBoost..."
+# Étape 1 : Entraîner le modèle XGBoost (uniquement si le modèle et le vectorizer n'existent pas)
+if [ ! -f "$MODEL_FILE" ] || [ ! -f "$VECTORIZER_FILE" ]; then
+    echo "🚀 Entraînement du modèle XGBoost..."
     python3 /home/utilisateur/Documents/Certification/certification_global/E3_model_AI/model_ml/train.py \
         --input "$SCRAPING_OUTPUT" \
         --annotations "$ANNOTATIONS_FILE" \
-        --model_output "$MODEL_FILE"
+        --model_output "$MODEL_FILE" \
+        --vectorizer_output "$VECTORIZER_FILE"  # Ajout du vectorizer
 
     if [ $? -ne 0 ]; then
         echo "Erreur lors de l'entraînement du modèle XGBoost. Arrêt du pipeline."
@@ -36,18 +38,19 @@ else
 fi
 
 # Étape 2 : Exécuter la prédiction avec le modèle XGBoost
-echo "Lancement des prédictions XGBoost..."
+echo "🔍 Lancement des prédictions XGBoost..."
 python3 /home/utilisateur/Documents/Certification/certification_global/E3_model_AI/model_ml/predict.py \
     --input "$SCRAPING_OUTPUT" \
     --annotations "$ANNOTATIONS_FILE" \
     --model "$MODEL_FILE" \
+    --vectorizer "$VECTORIZER_FILE" \
     --output "$XGBOOST_OUTPUT"
 
 if [ $? -ne 0 ]; then
     echo "Erreur lors de l'exécution des prédictions XGBoost. Arrêt du pipeline."
     exit 1
 fi
-echo "Prédictions XGBoost terminées avec succès. Résultats dans $XGBOOST_OUTPUT."
+echo "✅ Prédictions XGBoost terminées avec succès. Résultats dans $XGBOOST_OUTPUT."
 
 # Vérifier que le fichier des prédictions a bien été généré
 if [ ! -f "$XGBOOST_OUTPUT" ]; then
@@ -56,6 +59,7 @@ if [ ! -f "$XGBOOST_OUTPUT" ]; then
 fi
 
 echo "Pipeline terminé avec succès."
+
 
 
 

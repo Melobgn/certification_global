@@ -1,0 +1,19 @@
+name: Run Tests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.9"
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+      - name: Run Tests
+        run: |
+          pytest --cov=api_ml --cov=model_ml --cov-report=term-missing
