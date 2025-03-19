@@ -13,10 +13,27 @@ import xgboost as xgb
 env_path = Path(__file__).parent / ".env"
 load_dotenv(env_path)
 
-# Charger le modèle XGBoost et le vectorizer TF-IDF
-# MODEL_PATH = "/app/model_ml/model_xgb.pkl"
-MODEL_PATH = Path("/app/model_ml/model_xgb.json")
-VECTORIZER_PATH = Path("/app/model_ml/vectorizer.pkl")
+# 1️⃣ Détecter si on est dans Docker
+IS_DOCKER = os.path.exists("/app")
+
+# 2️⃣ Détecter si on est dans GitHub Actions
+IS_CI = os.getenv("GITHUB_ACTIONS") == "true"
+
+# 3️⃣ Appliquer le bon chemin selon l'environnement détecté
+if IS_DOCKER:
+    MODEL_PATH = Path("/app/model_ml/model_xgb.json")
+    VECTORIZER_PATH = Path("/app/model_ml/vectorizer.pkl")
+elif IS_CI:
+    MODEL_PATH = Path("../model_ml/model_xgb.json")  # ✅ Chemin correct depuis api_ml/
+    VECTORIZER_PATH = Path("../model_ml/vectorizer.pkl")
+else:
+    MODEL_PATH = Path("../model_ml/model_xgb.json")  # ✅ Local, même chemin que GitHub Actions
+    VECTORIZER_PATH = Path("../model_ml/vectorizer.pkl")
+
+# Affichage pour debug
+print(f"🔍 Détection de l'environnement → Docker={IS_DOCKER}, GitHub Actions={IS_CI}")
+print(f"📂 Utilisation des fichiers → {MODEL_PATH}, {VECTORIZER_PATH}")
+
 
 if not os.path.exists(MODEL_PATH):
     raise FileNotFoundError("Le modèle XGBoost n'a pas été trouvé.")
