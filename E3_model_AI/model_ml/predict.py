@@ -56,6 +56,16 @@ X_unlabeled_dmatrix = xgb.DMatrix(X_unlabeled_vect)
 print("🔍 Prédictions sur les données non annotées...")
 df_unlabeled['is_weapon_pred'] = model.predict(X_unlabeled_dmatrix).astype(int)  # Assure un format entier
 
-# Sauvegarde des résultats
-df_unlabeled[['product_id', 'url', 'description', 'title', 'is_weapon_pred']].to_csv(args.output, index=False)
-print(f"✅ Prédictions enregistrées dans {args.output}.")
+# 🔥 Ajout de la règle basée sur 'generique_name' : si renseigné, forcer à 1
+if 'generic_name' in df_unlabeled.columns:
+    df_unlabeled.loc[df_unlabeled["generic_name"].notna(), "is_weapon_pred"] = 1
+else:
+    print("⚠️ Attention : La colonne 'generic_name' est absente du dataset. Aucune correction appliquée.")
+
+# Vérification des résultats après correction
+print("📊 Répartition des prédictions après correction :")
+print(df_unlabeled["is_weapon_pred"].value_counts())
+
+# Sauvegarde des résultats mis à jour
+df_unlabeled[['product_id', 'url', 'description', 'title', 'generic_name', 'is_weapon_pred']].to_csv(args.output, index=False)
+print(f"✅ Prédictions mises à jour enregistrées dans {args.output}.")

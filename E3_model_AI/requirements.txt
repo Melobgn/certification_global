@@ -13,3 +13,6 @@ pytest
 httpx
 pytest-cov
 pytest-asyncio
+opencv-python
+Pillow
+ultralytics
