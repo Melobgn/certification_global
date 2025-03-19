@@ -13,7 +13,7 @@ jobs:
           python-version: "3.9"
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
+          pip install -r E3_model_AI/requirements.txt
       - name: Run Tests
         run: |
-          pytest --cov=api_ml --cov=model_ml --cov-report=term-missing
+          pytest E3_model_AI/tests/ --cov=api_ml --cov=model_ml --cov-report=term-missing
