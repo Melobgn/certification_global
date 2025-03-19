@@ -9,7 +9,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
-          lfs: true  # 🔥 Assure que Git LFS est activé pour récupérer les fichiers modèles si nécessaire
+          lfs: true  # 🔥 Active Git LFS si utilisé
 
       - name: Set up Python
         uses: actions/setup-python@v3
@@ -19,6 +19,13 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r E3_model_AI/requirements.txt
+
+      - name: Définir les variables d'environnement pour l'authentification
+        run: |
+          echo "API_USERNAME=${{ secrets.API_USERNAME }}" >> $GITHUB_ENV
+          echo "API_PASSWORD=${{ secrets.API_PASSWORD }}" >> $GITHUB_ENV
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> $GITHUB_ENV
+          echo "ACCESS_TOKEN_EXPIRE_MINUTES=60" >> $GITHUB_ENV
 
       - name: Vérifier les fichiers après le clone
         run: |
@@ -39,6 +46,13 @@ jobs:
             exit 1
           fi
           echo "✅ Le modèle et le vectorizer sont présents."
+
+      - name: Vérifier les variables d'environnement
+        run: |
+          echo "🔍 Vérification des variables d'environnement"
+          echo "API_USERNAME défini : ${{ secrets.API_USERNAME != '' }}"
+          echo "API_PASSWORD défini : ${{ secrets.API_PASSWORD != '' }}"
+          echo "SECRET_KEY défini : ${{ secrets.SECRET_KEY != '' }}"
 
       - name: Run Tests
         run: |

@@ -3,12 +3,22 @@ import pickle
 import numpy as np
 import xgboost as xgb
 from pathlib import Path
+import os
 
 @pytest.fixture
 def load_model():
     """Charger le modèle XGBoost sauvegardé et le vectorizer"""
-    model_path = Path("model_ml/model_xgb.json")
-    vectorizer_path = Path("model_ml/vectorizer.pkl")
+    
+    # Détecter GitHub Actions
+    IS_CI = os.getenv("GITHUB_ACTIONS") == "true"
+
+    # Définir le bon chemin en fonction de l'environnement
+    if IS_CI:
+        model_path = Path("E3_model_AI/model_ml/model_xgb.json")
+        vectorizer_path = Path("E3_model_AI/model_ml/vectorizer.pkl")
+    else:
+        model_path = Path("model_ml/model_xgb.json")
+        vectorizer_path = Path("model_ml/vectorizer.pkl")
 
     # Vérifier l'existence des fichiers
     if not model_path.exists():
