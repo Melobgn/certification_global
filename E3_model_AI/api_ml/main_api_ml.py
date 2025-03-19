@@ -23,7 +23,7 @@ IS_CI = os.getenv("GITHUB_ACTIONS") == "true"
 if IS_DOCKER:
     BASE_DIR = Path("/app")  # 🔥 Docker
 elif IS_CI:
-    BASE_DIR = Path(os.getenv("GITHUB_WORKSPACE", "/home/runner/work/certification_global/certification_global/E3_model_AI"))  # 🔥 GitHub Actions
+    BASE_DIR = Path("E3_model_AI")  # 🔥 GitHub Actions
 else:
     BASE_DIR = Path("/home/utilisateur/Documents/Certification/certification_global/E3_model_AI")  # 🔥 Local
 
