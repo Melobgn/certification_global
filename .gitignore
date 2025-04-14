@@ -155,6 +155,10 @@ venv.bak/
 **/*.csv
 **/*.xlsx
 
+model_ml/images/*
+!model_ml/images/.gitkeep
+
+
 
 # Spyder project settings
 .spyderproject
