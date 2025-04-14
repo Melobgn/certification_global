@@ -14,8 +14,8 @@ def load_model():
 
     # Définir le bon chemin en fonction de l'environnement
     if IS_CI:
-        model_path = Path("E3_model_AI/model_ml/model_xgb.json")
-        vectorizer_path = Path("E3_model_AI/model_ml/vectorizer.pkl")
+        model_path = Path("E3_model_AI/model_ml/xgboost_weapon_classifier.pkl")
+        vectorizer_path = Path("E3_model_AI/model_ml/tfidf_vectorizer.pkl")
     else:
         model_path = Path("model_ml/model_xgb.json")
         vectorizer_path = Path("model_ml/vectorizer.pkl")

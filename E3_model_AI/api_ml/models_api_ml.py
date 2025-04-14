@@ -23,3 +23,11 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     username: Optional[str] = None
+
+class ImageRequest(BaseModel):
+    image_url: str
+
+class ImagePrediction(BaseModel):
+    image_url: str
+    is_weapon_cv: int
+    confidence: float

@@ -22,7 +22,7 @@ args = parser.parse_args()
 # Charger les données
 print(f"Chargement des données depuis {args.input}...")
 df = pd.read_csv(args.input)
-print(f"📌 Colonnes du CSV chargé : {df.columns.tolist()}")
+print(f"Colonnes du CSV chargé : {df.columns.tolist()}")
 
 # Filtrer pour les produits classés comme armes
 df_weapon = df[df['is_weapon_pred'] == 1]

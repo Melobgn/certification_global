@@ -16,3 +16,8 @@ pytest-asyncio
 opencv-python
 Pillow
 ultralytics
+playwright
+streamlit
+requests
+joblib
+beautifulsoup4
