@@ -9,14 +9,17 @@ from datetime import timedelta
 from pathlib import Path
 from dotenv import load_dotenv
 from .auth import get_current_user, create_access_token, authenticate_user
-from .models_api_ml import Token, ImageRequest, ImagePrediction, Product, ProductWithPrediction
 from ultralytics import YOLO
-import xgboost as xgb
 import joblib
 import os
 import requests
 from PIL import Image
 from io import BytesIO
+from fastapi.responses import HTMLResponse, Response
+from prometheus_client import Gauge, generate_latest
+from evidently import Report
+from evidently.presets import DataDriftPreset
+import pandas as pd
 
 # Charger le fichier .env
 env_path = Path(__file__).parent / ".env"
@@ -113,3 +116,93 @@ def predict_image(data: ImageRequest, user: dict = Depends(get_current_user)):
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur lors du traitement de l'image : {str(e)}")
+
+# === GAUGES POUR PROMETHEUS ===
+xgboost_drift_score = Gauge("xgboost_data_drift", "Score de dérive XGBoost")
+yolo_drift_score = Gauge("yolo_data_drift", "Score de dérive YOLO")
+
+@app.get("/metrics")
+def prometheus_metrics():
+    return Response(generate_latest(), media_type="text/plain")
+
+@app.get("/monitor/refresh-drift")
+def refresh_drift():
+    try:
+        ref_xgb = BASE_DIR / "monitoring/evidently/xgboost_reference_sample.csv"
+        prod_xgb = BASE_DIR / "monitoring/evidently/xgboost_production_sample.csv"
+
+        if ref_xgb.exists() and prod_xgb.exists():
+            ref = pd.read_csv(ref_xgb)
+            prod = pd.read_csv(prod_xgb)
+            if "is_weapon" in ref.columns and "is_weapon_pred" not in ref.columns:
+                ref = ref.rename(columns={"is_weapon": "is_weapon_pred"})
+            ref.dropna(subset=["is_weapon_pred"], inplace=True)
+            prod.dropna(subset=["is_weapon_pred"], inplace=True)
+            ref["is_weapon_pred"] = ref["is_weapon_pred"].astype(int)
+            prod["is_weapon_pred"] = prod["is_weapon_pred"].astype(int)
+            report = Report(metrics=[DataDriftPreset()])
+            report.run(reference_data=ref, current_data=prod)
+            result = report.as_dict()
+            score = result["metrics"][0]["result"]["dataset_drift"]
+            xgboost_drift_score.set(score)
+
+        ref_yolo = BASE_DIR / "monitoring/evidently/yolo_reference_sample.csv"
+        prod_yolo = BASE_DIR / "monitoring/evidently/yolo_production_sample.csv"
+
+        if ref_yolo.exists() and prod_yolo.exists():
+            ref = pd.read_csv(ref_yolo)
+            prod = pd.read_csv(prod_yolo)
+            report = Report(metrics=[DataDriftPreset()])
+            report.run(reference_data=ref, current_data=prod)
+            result = report.as_dict()
+            score = result["metrics"][0]["result"]["dataset_drift"]
+            yolo_drift_score.set(score)
+
+        return {"status": "OK", "message": "Scores de dérive mis à jour"}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur de monitoring Evidently : {str(e)}")
+
+@app.get("/monitor/xgboost", response_class=HTMLResponse)
+def xgboost_report():
+    ref = BASE_DIR / "monitoring/evidently/xgboost_reference_sample.csv"
+    prod = BASE_DIR / "monitoring/evidently/xgboost_production_sample.csv"
+
+    if not ref.exists() or not prod.exists():
+        raise HTTPException(status_code=404, detail="Fichiers de monitoring manquants")
+
+    df_ref = pd.read_csv(ref)
+    df_prod = pd.read_csv(prod)
+
+    if "is_weapon" in df_ref.columns and "is_weapon_pred" not in df_ref.columns:
+        df_ref = df_ref.rename(columns={"is_weapon": "is_weapon_pred"})
+
+    df_ref = df_ref.dropna(subset=["is_weapon_pred"])
+    df_prod = df_prod.dropna(subset=["is_weapon_pred"])
+    df_ref["is_weapon_pred"] = df_ref["is_weapon_pred"].astype(int)
+    df_prod["is_weapon_pred"] = df_prod["is_weapon_pred"].astype(int)
+
+    report = Report(metrics=[DataDriftPreset()])
+    xgb_report = report.run(reference_data=df_ref, current_data=df_prod)
+    report_path = BASE_DIR / "monitoring/evidently/xgboost_drift_report.html"
+    xgb_report
+    xgb_report.save_html("report_path")
+    return HTMLResponse(content=report_path.read_text(), status_code=200)
+        
+
+@app.get("/monitor/yolo", response_class=HTMLResponse)
+def yolo_report():
+    ref = BASE_DIR / "monitoring/evidently/yolo_reference_sample.csv"
+    prod = BASE_DIR / "monitoring/evidently/yolo_production_sample.csv"
+
+    if not ref.exists() or not prod.exists():
+        raise HTTPException(status_code=404, detail="Fichiers de monitoring YOLO manquants")
+
+    df_ref = pd.read_csv(ref)
+    df_prod = pd.read_csv(prod)
+
+    report = Report(metrics=[DataDriftPreset()])
+    report.run(reference_data=df_ref, current_data=df_prod)
+    report_path = BASE_DIR / "monitoring/evidently/yolo_drift_report.html"
+    report.save_html(str(report_path))
+    return HTMLResponse(content=report_path.read_text(), status_code=200)

@@ -163,3 +163,6 @@ count_above_threshold = results_df[results_df['confidence_score'] > CONFIDENCE_T
 print(f"Nombre d'images avec un score supérieur à {CONFIDENCE_THRESHOLD} : {count_above_threshold}")
 print("Valeurs manquantes :")
 print(results_df.isnull().sum())
+
+# Sauvegarder un log pour Evidently
+results_df[['image', 'confidence_score']].sample(n=10, random_state=42).to_csv("/home/utilisateur/Documents/Certification/certification_global/E3_model_AI/monitoring/evidently/yolo_production_sample.csv", index=False)

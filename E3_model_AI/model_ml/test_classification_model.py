@@ -120,3 +120,8 @@ df_unlabeled[['url', 'description', 'title', 'product_id', 'is_weapon_pred']].to
 print("Prédictions enregistrées avec succès.")
 print("Répartition des classes dans le set de test :")
 print(pd.Series(y_test).value_counts(normalize=True))
+
+# Échantillonner les prédictions en prod
+log_sample = df_unlabeled[['title', 'description', 'is_weapon_pred']].sample(n=100, random_state=42)
+log_sample.to_csv("/home/utilisateur/Documents/Certification/certification_global/E3_model_AI/monitoring/evidently/xgboost_production_sample.csv", index=False)
+print("Échantillon enregistré pour le monitoring.")

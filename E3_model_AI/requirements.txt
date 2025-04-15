@@ -21,3 +21,8 @@ streamlit
 requests
 joblib
 beautifulsoup4
+prometheus-client
+evidently
+matplotlib
+prometheus-fastapi-instrumentator
+loguru
