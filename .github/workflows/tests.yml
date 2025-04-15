@@ -37,11 +37,11 @@ jobs:
 
       - name: Vérifier si le modèle XGBoost est bien là
         run: |
-          if [ ! -f "E3_model_AI/model_ml/model_xgb.json" ]; then
+          if [ ! -f "E3_model_AI/model_ml/xgboost_weapon_classifier.pkl" ]; then
             echo "❌ Le modèle XGBoost n'a pas été trouvé !"
             exit 1
           fi
-          if [ ! -f "E3_model_AI/model_ml/vectorizer.pkl" ]; then
+          if [ ! -f "E3_model_AI/model_ml/tfidf_vectorizer.pkl" ]; then
             echo "❌ Le vectorizer n'a pas été trouvé !"
             exit 1
           fi
