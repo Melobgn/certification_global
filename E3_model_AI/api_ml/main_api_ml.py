@@ -15,7 +15,8 @@ import os
 import requests
 from PIL import Image
 from io import BytesIO
-from fastapi.responses import HTMLResponse, Response
+from fastapi.responses import HTMLResponse, Response, RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from prometheus_client import Gauge, generate_latest
 from evidently import Report
 from evidently.presets import DataDriftPreset
@@ -59,6 +60,9 @@ app = FastAPI(
     description="API combinant XGBoost (texte) et YOLO (image) pour détecter les armes sur des produits.",
     version="2.0.0"
 )
+
+# Monter les fichiers Evidently statiques
+app.mount("/static", StaticFiles(directory=str(BASE_DIR / "monitoring" / "evidently")), name="static")
 
 # ==============================
 # AUTHENTIFICATION
@@ -163,46 +167,56 @@ def refresh_drift():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur de monitoring Evidently : {str(e)}")
 
-@app.get("/monitor/xgboost", response_class=HTMLResponse)
-def xgboost_report():
-    ref = BASE_DIR / "monitoring/evidently/xgboost_reference_sample.csv"
-    prod = BASE_DIR / "monitoring/evidently/xgboost_production_sample.csv"
 
-    if not ref.exists() or not prod.exists():
-        raise HTTPException(status_code=404, detail="Fichiers de monitoring manquants")
+@app.get("/monitor/xgboost")
+def xgboost_report_link():
+    return RedirectResponse(url="/static/xgboost_drift_report.html")
 
-    df_ref = pd.read_csv(ref)
-    df_prod = pd.read_csv(prod)
+@app.get("/monitor/yolo")
+def yolo_report_link():
+    return RedirectResponse(url="/static/yolo_drift_report.html")
 
-    if "is_weapon" in df_ref.columns and "is_weapon_pred" not in df_ref.columns:
-        df_ref = df_ref.rename(columns={"is_weapon": "is_weapon_pred"})
 
-    df_ref = df_ref.dropna(subset=["is_weapon_pred"])
-    df_prod = df_prod.dropna(subset=["is_weapon_pred"])
-    df_ref["is_weapon_pred"] = df_ref["is_weapon_pred"].astype(int)
-    df_prod["is_weapon_pred"] = df_prod["is_weapon_pred"].astype(int)
+# @app.get("/monitor/xgboost", response_class=HTMLResponse)
+# def xgboost_report():
+#     ref = BASE_DIR / "monitoring/evidently/xgboost_reference_sample.csv"
+#     prod = BASE_DIR / "monitoring/evidently/xgboost_production_sample.csv"
 
-    report = Report(metrics=[DataDriftPreset()])
-    xgb_report = report.run(reference_data=df_ref, current_data=df_prod)
-    report_path = BASE_DIR / "monitoring/evidently/xgboost_drift_report.html"
-    xgb_report
-    xgb_report.save_html("report_path")
-    return HTMLResponse(content=report_path.read_text(), status_code=200)
+#     if not ref.exists() or not prod.exists():
+#         raise HTTPException(status_code=404, detail="Fichiers de monitoring manquants")
+
+#     df_ref = pd.read_csv(ref)
+#     df_prod = pd.read_csv(prod)
+
+#     if "is_weapon" in df_ref.columns and "is_weapon_pred" not in df_ref.columns:
+#         df_ref = df_ref.rename(columns={"is_weapon": "is_weapon_pred"})
+
+#     df_ref = df_ref.dropna(subset=["is_weapon_pred"])
+#     df_prod = df_prod.dropna(subset=["is_weapon_pred"])
+#     df_ref["is_weapon_pred"] = df_ref["is_weapon_pred"].astype(int)
+#     df_prod["is_weapon_pred"] = df_prod["is_weapon_pred"].astype(int)
+
+#     report = Report(metrics=[DataDriftPreset()])
+#     xgb_report = report.run(reference_data=df_ref, current_data=df_prod)
+#     report_path = BASE_DIR / "monitoring/evidently/xgboost_drift_report.html"
+#     xgb_report
+#     xgb_report.save_html(str(report_path))
+#     return HTMLResponse(content=report_path.read_text(), status_code=200)
         
 
-@app.get("/monitor/yolo", response_class=HTMLResponse)
-def yolo_report():
-    ref = BASE_DIR / "monitoring/evidently/yolo_reference_sample.csv"
-    prod = BASE_DIR / "monitoring/evidently/yolo_production_sample.csv"
+# @app.get("/monitor/yolo", response_class=HTMLResponse)
+# def yolo_report():
+#     ref = BASE_DIR / "monitoring/evidently/yolo_reference_sample.csv"
+#     prod = BASE_DIR / "monitoring/evidently/yolo_production_sample.csv"
 
-    if not ref.exists() or not prod.exists():
-        raise HTTPException(status_code=404, detail="Fichiers de monitoring YOLO manquants")
+#     if not ref.exists() or not prod.exists():
+#         raise HTTPException(status_code=404, detail="Fichiers de monitoring YOLO manquants")
 
-    df_ref = pd.read_csv(ref)
-    df_prod = pd.read_csv(prod)
+#     df_ref = pd.read_csv(ref)
+#     df_prod = pd.read_csv(prod)
 
-    report = Report(metrics=[DataDriftPreset()])
-    report.run(reference_data=df_ref, current_data=df_prod)
-    report_path = BASE_DIR / "monitoring/evidently/yolo_drift_report.html"
-    report.save_html(str(report_path))
-    return HTMLResponse(content=report_path.read_text(), status_code=200)
+#     report = Report(metrics=[DataDriftPreset()])
+#     report.run(reference_data=df_ref, current_data=df_prod)
+#     report_path = BASE_DIR / "monitoring/evidently/yolo_drift_report.html"
+#     report.save_html(str(report_path))
+#     return HTMLResponse(content=report_path.read_text(), status_code=200)

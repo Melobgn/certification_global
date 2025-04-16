@@ -11,6 +11,8 @@ services:
       dockerfile: api_ml/Dockerfile  # Modifier le chemin vers le bon Dockerfile
     ports:
       - "8000:8000"
+    networks:
+      - monitoring_network
     volumes:
       - ./api_ml/.env:/app/api_ml/.env  # Charge le fichier .env dans le conteneur
       - ./model_ml:/app/model_ml  # Monte le dossier contenant le modèle
@@ -30,6 +32,8 @@ services:
     depends_on:
       - api  # Streamlit attend que l'API soit démarrée
     restart: unless-stopped
+    networks:
+      - monitoring_network
     volumes:
       - ./app_streamlit:/app
     environment:
@@ -42,6 +46,8 @@ services:
     build:
       context: .
       dockerfile: api_ml/Dockerfile  # Utilise la même image que `api`
+    networks:
+      - monitoring_network
     volumes:
       - ./tests:/app/tests  # Monte le dossier des tests
       - ./model_ml:/app/model_ml  # Monte le modèle

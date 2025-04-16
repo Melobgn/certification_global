@@ -22,7 +22,7 @@ requests
 joblib
 beautifulsoup4
 prometheus-client
-evidently
+evidently==0.4.15
 matplotlib
 prometheus-fastapi-instrumentator
 loguru
