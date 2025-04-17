@@ -18,8 +18,9 @@ from io import BytesIO
 from fastapi.responses import HTMLResponse, Response, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from prometheus_client import Gauge, generate_latest
-from evidently import Report
+from evidently import Report, Dataset, DataDefinition
 from evidently.presets import DataDriftPreset
+
 import pandas as pd
 
 # Charger le fichier .env
@@ -121,51 +122,97 @@ def predict_image(data: ImageRequest, user: dict = Depends(get_current_user)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur lors du traitement de l'image : {str(e)}")
 
-# === GAUGES POUR PROMETHEUS ===
-xgboost_drift_score = Gauge("xgboost_data_drift", "Score de dérive XGBoost")
-yolo_drift_score = Gauge("yolo_data_drift", "Score de dérive YOLO")
+from collections import defaultdict
+import re
 
-@app.get("/metrics")
-def prometheus_metrics():
-    return Response(generate_latest(), media_type="text/plain")
+# === GAUGES POUR PROMETHEUS (dynamique)
+gauges = defaultdict(dict)
+
+def sanitize(name):
+    return re.sub(r"[^a-zA-Z0-9_:]", "_", name).lower().strip("_")
+
+def set_prometheus_metric(metric_name, value, labels=None, prefix=None):
+    full_name = f"{prefix}_{metric_name}" if prefix else metric_name
+    key = (full_name, tuple(sorted((labels or {}).items())))
+    if key not in gauges[prefix or "default"]:
+        if labels:
+            gauges[prefix or "default"][key] = Gauge(full_name, f"Métrique Evidently : {full_name}", list(labels.keys()))
+        else:
+            gauges[prefix or "default"][key] = Gauge(full_name, f"Métrique Evidently : {full_name}")
+    if labels:
+        gauges[prefix or "default"][key].labels(**labels).set(value)
+    else:
+        gauges[prefix or "default"][key].set(value)
 
 @app.get("/monitor/refresh-drift")
 def refresh_drift():
     try:
-        ref_xgb = BASE_DIR / "monitoring/evidently/xgboost_reference_sample.csv"
-        prod_xgb = BASE_DIR / "monitoring/evidently/xgboost_production_sample.csv"
+        def process_drift(ref_path, prod_path, prefix: str):
+            if not ref_path.exists() or not prod_path.exists():
+                return
 
-        if ref_xgb.exists() and prod_xgb.exists():
-            ref = pd.read_csv(ref_xgb)
-            prod = pd.read_csv(prod_xgb)
+            ref = pd.read_csv(ref_path)
+            prod = pd.read_csv(prod_path)
+
             if "is_weapon" in ref.columns and "is_weapon_pred" not in ref.columns:
                 ref = ref.rename(columns={"is_weapon": "is_weapon_pred"})
-            ref.dropna(subset=["is_weapon_pred"], inplace=True)
-            prod.dropna(subset=["is_weapon_pred"], inplace=True)
-            ref["is_weapon_pred"] = ref["is_weapon_pred"].astype(int)
-            prod["is_weapon_pred"] = prod["is_weapon_pred"].astype(int)
+
+            ref = ref.dropna(subset=["title", "description", "is_weapon_pred"])
+            prod = prod.dropna(subset=["title", "description", "is_weapon_pred"])
+
+            definition = DataDefinition(
+                categorical_columns=["is_weapon_pred"],
+                text_columns=["title", "description"]
+            )
+
+            ref_dataset = Dataset.from_pandas(ref, data_definition=definition)
+            prod_dataset = Dataset.from_pandas(prod, data_definition=definition)
+
             report = Report(metrics=[DataDriftPreset()])
-            report.run(reference_data=ref, current_data=prod)
-            result = report.as_dict()
-            score = result["metrics"][0]["result"]["dataset_drift"]
-            xgboost_drift_score.set(score)
+            my_eval = report.run(reference_data=ref_dataset, current_data=prod_dataset)
+            result = my_eval.dict()
 
-        ref_yolo = BASE_DIR / "monitoring/evidently/yolo_reference_sample.csv"
-        prod_yolo = BASE_DIR / "monitoring/evidently/yolo_production_sample.csv"
+            for metric in result.get("metrics", []):
+                metric_id = sanitize(metric.get("metric_id", "unknown_metric"))
+                metric_value = metric.get("value", {})
 
-        if ref_yolo.exists() and prod_yolo.exists():
-            ref = pd.read_csv(ref_yolo)
-            prod = pd.read_csv(prod_yolo)
-            report = Report(metrics=[DataDriftPreset()])
-            report.run(reference_data=ref, current_data=prod)
-            result = report.as_dict()
-            score = result["metrics"][0]["result"]["dataset_drift"]
-            yolo_drift_score.set(score)
+                if isinstance(metric_value, (int, float)):
+                    metric_name = sanitize(f"evidently_{metric_id}")
+                    set_prometheus_metric(metric_name, metric_value, prefix=prefix)
 
-        return {"status": "OK", "message": "Scores de dérive mis à jour"}
+                elif isinstance(metric_value, dict):
+                    for key, value in metric_value.items():
+                        if isinstance(value, (int, float)):
+                            metric_name = sanitize(f"evidently_{metric_id}_{key}")
+                            set_prometheus_metric(metric_name, value, prefix=prefix)
+
+                # Si présence du détail par colonnes
+                if metric_id == "datadrift" and "drift_by_columns" in metric_value:
+                    for col, details in metric_value["drift_by_columns"].items():
+                        col_key = sanitize(col)
+                        drifted = 1 if details.get("drift_detected") else 0
+                        p_val = details.get("p_value", 0)
+                        set_prometheus_metric("column_drifted", drifted, labels={"column": col_key}, prefix=prefix)
+                        set_prometheus_metric("column_p_value", p_val, labels={"column": col_key}, prefix=prefix)
+
+        # XGBoost
+        process_drift(
+            ref_path=BASE_DIR / "monitoring/evidently/xgboost_reference_sample.csv",
+            prod_path=BASE_DIR / "monitoring/evidently/xgboost_production_sample.csv",
+            prefix="xgb"
+        )
+
+        # YOLO
+        process_drift(
+            ref_path=BASE_DIR / "monitoring/evidently/yolo_reference_sample.csv",
+            prod_path=BASE_DIR / "monitoring/evidently/yolo_production_sample.csv",
+            prefix="yolo"
+        )
+
+        return {"status": "OK", "message": "Toutes les métriques Evidently ont été mises à jour."}
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erreur de monitoring Evidently : {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erreur Evidently : {str(e)}")
 
 
 @app.get("/monitor/xgboost")

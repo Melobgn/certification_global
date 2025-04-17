@@ -17,7 +17,7 @@ services:
       - ./api_ml/.env:/app/api_ml/.env  # Charge le fichier .env dans le conteneur
       - ./model_ml:/app/model_ml  # Monte le dossier contenant le modèle
       - ./tests:/app/tests
-      - ./monitoring/evidently:/app/monitoring/evidently  # Monte le dossier de monitoring
+      - ./monitoring/evidently:/app
     restart: unless-stopped
     env_file:
       - api_ml/.env  # Ajout explicite de l'env pour plus de clarté
@@ -65,9 +65,7 @@ services:
       - "8001:8001"
     networks:
       - monitoring_network
-    volumes:
-      - ./monitoring/evidently:/app  # Monte le dossier `monitoring/evidently` dans /app
-    command: python /app/evidently_prometheus.py
+      
 
   prometheus:
     image: prom/prometheus:latest

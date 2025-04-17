@@ -2,12 +2,15 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install -r requirements.txt
+# Installer les dépendances
+COPY monitoring/evidently/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+# Copier tous les fichiers nécessaires (script, CSV, etc.)
+COPY monitoring/evidently/. .
 
-# Exposer le port pour Evidently
+# Exposer le port Prometheus
 EXPOSE 8001
 
-CMD ["python", "/app/evidently_prometheus.py"]
+# Lancer le script
+CMD ["python3", "-u", "evidently_prometheus.py"]
