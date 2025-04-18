@@ -17,7 +17,7 @@ services:
       - ./api_ml/.env:/app/api_ml/.env  # Charge le fichier .env dans le conteneur
       - ./model_ml:/app/model_ml  # Monte le dossier contenant le modèle
       - ./tests:/app/tests
-      - ./monitoring/evidently:/app
+      - ./monitoring/evidently:/app/monitoring/evidently
     restart: unless-stopped
     env_file:
       - api_ml/.env  # Ajout explicite de l'env pour plus de clarté

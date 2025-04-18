@@ -27,8 +27,8 @@ else:
 
 
 # === Chemins des fichiers
-REF_XGB = BASE_DIR / "xgboost_reference_sample.csv"
-PROD_XGB = BASE_DIR / "xgboost_production_sample.csv"
+REF_XGB = BASE_DIR / "monitoring" / "evidently" / "xgboost_reference_sample.csv"
+PROD_XGB = BASE_DIR / "monitoring" / "evidently" / "xgboost_production_sample.csv"
 
 # === Stockage dynamique des métriques
 prometheus_gauges = {}
@@ -49,10 +49,6 @@ def set_prometheus_metric(metric_name, value, labels=None):
         prometheus_gauges[key].set(value)
 
 def compute_and_expose_metrics():
-    print("📁 REF_XGB =", REF_XGB)
-    print("📁 PROD_XGB =", PROD_XGB)
-    print("📁 Fichier REF existe :", os.path.exists(REF_XGB))
-    print("📁 Fichier PROD existe :", os.path.exists(PROD_XGB))
 
     if not os.path.exists(REF_XGB) or not os.path.exists(PROD_XGB):
         print("❌ Fichier(s) manquant(s)")
