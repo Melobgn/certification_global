@@ -1,13 +1,13 @@
-# #!/bin/bash
+#!/bin/bash
 
-# # Définition des chemins des fichiers
-# SCRAPING_OUTPUT="/home/utilisateur/Documents/Certification/certification_global/E3_model_AI/model_ml/products_xgboost.csv"
-# ANNOTATIONS_FILE="/home/utilisateur/Documents/Certification/certification_global/E3_model_AI/model_ml/dataset_annotation_update.xlsx"
-# XGBOOST_OUTPUT="/home/utilisateur/Documents/Certification/certification_global/E3_model_AI/model_ml/predictions_xgboost.csv"
-# VISION_OUTPUT="/home/utilisateur/Documents/Certification/certification_global/E3_model_AI/model_ml/predictions_computer_vision.csv"
-# YOLO_MODEL="/home/utilisateur/Documents/Certification/certification_global/E3_model_AI/model_ml/best.pt" # Modèle YOLO pour la vision
-# VISION_DIR="/home/utilisateur/Documents/Certification/certification_global/E3_model_AI/model_ml/vision_results" # Répertoire des résultats de vision
-# XGBOOST_ENRICHED_OUTPUT="/home/utilisateur/Documents/Certification/certification_global/E3_model_AI/model_ml/predictions_xgboost_with_images.csv"
+# Définition des chemins des fichiers
+SCRAPING_OUTPUT="/home/utilisateur/Documents/Certification/certification_global/E3_model_AI/model_ml/products_xgboost.csv"
+ANNOTATIONS_FILE="/home/utilisateur/Documents/Certification/certification_global/E3_model_AI/model_ml/dataset_annotation_update.xlsx"
+XGBOOST_OUTPUT="/home/utilisateur/Documents/Certification/certification_global/E3_model_AI/model_ml/predictions_xgboost.csv"
+VISION_OUTPUT="/home/utilisateur/Documents/Certification/certification_global/E3_model_AI/model_ml/predictions_computer_vision.csv"
+YOLO_MODEL="/home/utilisateur/Documents/Certification/certification_global/E3_model_AI/model_ml/best.pt" # Modèle YOLO pour la vision
+VISION_DIR="/home/utilisateur/Documents/Certification/certification_global/E3_model_AI/model_ml/vision_results" # Répertoire des résultats de vision
+XGBOOST_ENRICHED_OUTPUT="/home/utilisateur/Documents/Certification/certification_global/E3_model_AI/model_ml/predictions_xgboost_with_images.csv"
 
 # # Vérifier que le fichier concaténé existe
 # if [ ! -f "$SCRAPING_OUTPUT" ]; then
@@ -96,6 +96,14 @@
 #     exit 1
 # fi
 
+# Etape 4 : Enregistrer les résultats dans la base de données weapon_detection.db
+
+python3 predictions_to_db.py \
+  --xgb "$XGBOOST_OUTPUT" \
+  --yolo "$VISION_OUTPUT" \
+  --errors "${VISION_DIR}/error_images.csv" \
+  --db "/home/utilisateur/Documents/Certification/certification_global/E1_gestion_donnees/database/weapon_detection.db"
+
 
 # # Pipeline terminé
 # echo "Pipeline global terminé avec succès."
@@ -108,6 +116,6 @@
 #     cp "$YOLO_PROD" "$YOLO_REF"
 # fi
 
-# Lancer le monitoring Evidently
-echo "Lancement du monitoring Evidently..."
-python3 /home/utilisateur/Documents/Certification/certification_global/E3_model_AI/monitoring/evidently/run_monitoring.py
+# # Lancer le monitoring Evidently
+# echo "Lancement du monitoring Evidently..."
+# python3 /home/utilisateur/Documents/Certification/certification_global/E3_model_AI/monitoring/evidently/run_monitoring.py
