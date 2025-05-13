@@ -1,0 +1,92 @@
+/* ===== MAIN THEME : SOBRIÉTÉ & CLARTÉ ===== */
+
+body {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    color: #222;
+    background-color: #f9f9fb;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+}
+
+header {
+    background-color: #1f2937; /* gris foncé bleuté */
+    color: white;
+    padding: 15px 30px;
+    border-bottom: 4px solid #2563eb; /* bleu primaire */
+}
+
+header h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+nav a {
+    color: #f3f4f6;
+    text-decoration: none;
+    margin-right: 15px;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+main {
+    padding: 30px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+h2, h3 {
+    color: #1f2937;
+}
+
+ul {
+    padding-left: 20px;
+}
+
+li {
+    margin-bottom: 10px;
+}
+
+button {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    margin-right: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s ease-in-out;
+}
+
+button:hover {
+    background-color: #1e40af;
+}
+
+button[disabled] {
+    background-color: #94a3b8;
+    cursor: not-allowed;
+}
+
+form {
+    margin-top: 10px;
+}
+
+.alert {
+    background-color: #fff4e5;
+    color: #92400e;
+    padding: 10px 15px;
+    border-left: 4px solid #f59e0b;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+img {
+    border: 1px solid #e5e7eb;
+    padding: 4px;
+    border-radius: 4px;
+    max-width: 300px;
+}

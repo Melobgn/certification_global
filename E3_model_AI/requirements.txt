@@ -26,3 +26,10 @@ evidently
 matplotlib
 prometheus-fastapi-instrumentator
 loguru
+django
+django-dotenv
+django-livereload-server
+django-widget-tweaks
+whitenoise
+psycopg2-binary
+gunicorn

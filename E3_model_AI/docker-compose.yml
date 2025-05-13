@@ -95,3 +95,16 @@ services:
       - "9100:9100"  # Node Exporter accessible sur ce port
     networks:
       - monitoring_network
+
+  django:
+    build:
+      context: ../E4_app_IA
+      dockerfile: ../E4_app_IA/Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../E4_app_IA:/app
+      - ../E1_gestion_donnees/database:/app/database  # base partagée
+    networks:
+      - monitoring_network
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8080"]

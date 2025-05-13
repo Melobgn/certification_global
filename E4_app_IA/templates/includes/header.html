@@ -1,0 +1,16 @@
+{% load static %}
+<header>
+  <h1>Détection de Produits Suspects</h1>
+  <nav>
+    {% if user.is_authenticated %}
+      {% if user.role == 'admin' %}
+        <a href="{% url 'admin_dashboard' %}">Tableau admin</a>
+      {% elif user.role == 'analyst' %}
+        <a href="{% url 'annotation_dashboard' %}">Annotation</a>
+      {% endif %}
+      <a href="{% url 'logout' %}">Se déconnecter</a>
+    {% else %}
+      <a href="{% url 'login' %}">Connexion</a>
+    {% endif %}
+  </nav>
+</header>

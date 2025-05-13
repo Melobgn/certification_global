@@ -1,0 +1,8 @@
+django
+django-dotenv
+django-livereload-server
+django-widget-tweaks
+requests
+whitenoise
+psycopg2-binary
+gunicorn
