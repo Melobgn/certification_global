@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>📘 Historique de mes annotations</h2>
+
+<ul>
+  {% for annotation in annotations %}
+    <li>
+      <a href="{{ annotation.url }}" target="_blank">{{ annotation.url }}</a> —
+      <strong>{% if annotation.is_confirmed_weapon %}✅ Vrai positif{% else %}❌ Faux positif{% endif %}</strong> —
+      {{ annotation.date_annotation|date:"d/m/Y H:i" }}
+    </li>
+  {% empty %}
+    <li>Aucune annotation encore enregistrée.</li>
+  {% endfor %}
+</ul>
+
+<a href="{% url 'annotation_dashboard' %}">← Retour à l’annotation</a>
+{% endblock %}

@@ -2,7 +2,7 @@ from django.db import models
 from users.models import CustomUser
 
 class VisionPrediction(models.Model):
-    url = models.URLField(unique=True)
+    url = models.TextField(primary_key=True)
     title = models.TextField()
     description = models.TextField()
     image = models.TextField()
@@ -30,4 +30,5 @@ class AnnotationManuelle(models.Model):
     date_annotation = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        db_table = 'annotation_manuelle'
         unique_together = ('url', 'user')  # un seul vote par utilisateur

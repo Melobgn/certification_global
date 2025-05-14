@@ -1,27 +1,30 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>🖼️ Produits détectés avec image (YOLO)</h2>
+
+<h2>🖼️ Produits détectés avec image (Computer Vision)</h2>
 <ul>
   {% for produit in produits_avec_image %}
-    <li style="margin-bottom: 20px;">
-      <strong><a href="{{ produit.url }}" target="_blank">{{ produit.title }}</a></strong><br>
-      Score : {{ produit.confidence_score }}<br>
-      <img src="{{ produit.image }}" alt="{{ produit.title }}" width="200"><br>
+    {% if produit.confidence_score %}
+        <li style="margin-bottom: 20px;">
+        <strong><a href="{{ produit.url }}" target="_blank">{{ produit.title }}</a></strong><br>
+        Score : {{ produit.confidence_score }}<br>
+        <img src="{{ produit.image }}" alt="{{ produit.title }}" width="200"><br>
 
-      <form method="POST" action="{% url 'soumettre_annotation' %}" style="margin-top: 10px;">
-        {% csrf_token %}
-        <input type="hidden" name="url" value="{{ produit.url }}">
-        <button type="submit" name="action" value="vrai">✅ Vrai positif</button>
-        <button type="submit" name="action" value="faux">❌ Faux positif</button>
-      </form>
-    </li>
-  {% endfor %}
+        <form method="POST" action="{% url 'soumettre_annotation' %}" style="margin-top: 10px;">
+            {% csrf_token %}
+            <input type="hidden" name="url" value="{{ produit.url }}">
+            <button type="submit" name="action" value="vrai">✅ Vrai positif</button>
+            <button type="submit" name="action" value="faux">❌ Faux positif</button>
+        </form>
+        </li>
+    {% endif %}
+{% endfor %}
 </ul>
 
 <hr>
 
-<h2>⚠️ Produits sans image (basés sur XGBoost)</h2>
+<h2>⚠️ Produits sans image (basés sur un modèle de classification textuelle)</h2>
 <ul>
   {% for alerte in alertes_sans_image %}
     <li style="margin-bottom: 10px;">

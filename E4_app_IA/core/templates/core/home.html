@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<main>
+  <section style="text-align: center; padding: 60px 20px;">
+    <img src="{% static 'img/gun_detection.png' %}" alt="Logo Melobgn" style="max-width: 200px; height: auto; margin-bottom: 30px;">
+    <h2 style="font-size: 28px; margin-bottom: 20px;">Bienvenue sur la plateforme de surveillance des produits des sites partenaires</h2>
+
+    <p style="max-width: 750px; margin: 0 auto 30px; font-size: 17px; line-height: 1.7;">
+      Cette application permet à l'équipe risques partenaires de visualiser, valider et gérer les détections de produits suspects.
+      Grâce à une combinaison d’algorithmes de classification textuelle et de reconnaissance visuelle,
+      la plateforme identifie automatiquement les produits potentiellement interdits à la vente.
+    </p>
+
+    <div style="margin-top: 40px;">
+        {% if user.is_authenticated %}
+        <p style="font-size: 18px; font-weight: 500; color: #1f2937; margin-bottom: 20px;">
+          👋 Bonjour {{ user.username }} ! Vous êtes connecté en tant que <strong>{{ user.role }}</strong>.
+        </p>
+      {% endif %}
+    {% if not user.is_authenticated %}
+        <p style="max-width: 750px; margin: 0 auto 40px; font-size: 16px; color: #555;">
+            Connectez-vous pour accéder aux tableaux de bord, aux outils d’annotation manuelle, ou à l’administration des utilisateurs.
+        </p>
+      <a href="{% url 'login' %}" class="button" style="margin-right: 15px;">🔐 Connexion</a>
+      <a href="{% url 'signup' %}" class="button" style="background-color: #4caf50;">📝 Créer un compte</a>
+    {% endif %}
+    </div>
+  </section>
+</main>
+{% endblock %}
