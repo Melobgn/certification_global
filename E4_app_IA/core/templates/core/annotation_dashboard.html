@@ -1,43 +1,64 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% load static %}
+
 {% block content %}
+<main>
+  <h2>🔎 Produits à examiner</h2>
 
+  <!-- ✅ Message de confirmation -->
+  {% if messages %}
+    <div class="alert-box">
+      {% for message in messages %}
+        <div class="alert alert-success">
+          {{ message }}
+          <button class="close-alert" onclick="this.parentElement.style.display='none';">&times;</button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
 
-<h2>🖼️ Produits détectés avec image (Computer Vision)</h2>
-<ul>
-  {% for produit in produits_avec_image %}
-    {% if produit.confidence_score %}
-        <li style="margin-bottom: 20px;">
-        <strong><a href="{{ produit.url }}" target="_blank">{{ produit.title }}</a></strong><br>
-        Score : {{ produit.confidence_score }}<br>
-        <img src="{{ produit.image }}" alt="{{ produit.title }}" width="200"><br>
+  <!-- ✅ Liste des produits -->
+  <div class="grid-produits">
+    {% for produit in produits %}
+      {% if produit.type == 'image' %}
+        <div class="carte-produit">
+          <a href="{{ produit.url }}" target="_blank">
+            <h3>{{ produit.title }}</h3>
+          </a>
+          <p><strong>Score :</strong> {{ produit.confidence_score|floatformat:2 }}</p>
+          <img src="{{ produit.image }}" alt="{{ produit.title }}" class="image-produit">
+      {% elif produit.type == 'texte' %}
+        <div class="carte-produit">
+          <a href="{{ produit.url }}" target="_blank">
+            <h3>{{ produit.url|truncatechars:100 }}</h3>
+          </a>
+          <p><em>Produit sans image</em></p>
+      {% endif %}
 
-        <form method="POST" action="{% url 'soumettre_annotation' %}" style="margin-top: 10px;">
-            {% csrf_token %}
-            <input type="hidden" name="url" value="{{ produit.url }}">
-            <button type="submit" name="action" value="vrai">✅ Vrai positif</button>
-            <button type="submit" name="action" value="faux">❌ Faux positif</button>
-        </form>
-        </li>
-    {% endif %}
-{% endfor %}
-</ul>
-
-<hr>
-
-<h2>⚠️ Produits sans image (basés sur un modèle de classification textuelle)</h2>
-<ul>
-  {% for alerte in alertes_sans_image %}
-    <li style="margin-bottom: 10px;">
-      <strong><a href="{{ alerte.url }}" target="_blank">{{ alerte.url }}</a></strong><br>
-
-      <form method="POST" action="{% url 'soumettre_annotation' %}" style="margin-top: 5px;">
+      <form method="POST" action="{% url 'soumettre_annotation' %}">
         {% csrf_token %}
-        <input type="hidden" name="url" value="{{ alerte.url }}">
-        <button type="submit" name="action" value="vrai">✅ Vrai positif</button>
-        <button type="submit" name="action" value="faux">❌ Faux positif</button>
+        <input type="hidden" name="url" value="{{ produit.url }}">
+        <input type="hidden" name="page" value="{{ request.GET.page }}">
+        <div class="boutons-annotation">
+          <button type="submit" name="action" value="vrai" class="positif">✅ Vrai positif</button>
+          <button type="submit" name="action" value="faux" class="negatif">❌ Faux positif</button>
+        </div>
       </form>
-    </li>
-  {% endfor %}
-</ul>
+    </div>
+    {% endfor %}
+  </div>
 
+  <!-- ✅ Pagination -->
+  {% if produits.paginator.num_pages > 1 %}
+    <div class="pagination">
+      {% if produits.has_previous %}
+        <a href="?page={{ produits.previous_page_number }}" class="page-btn">← Précédent</a>
+      {% endif %}
+      <span class="page-info">Page {{ produits.number }} sur {{ produits.paginator.num_pages }}</span>
+      {% if produits.has_next %}
+        <a href="?page={{ produits.next_page_number }}" class="page-btn">Suivant →</a>
+      {% endif %}
+    </div>
+  {% endif %}
+</main>
 {% endblock %}

@@ -1,19 +1,53 @@
 {% extends 'base.html' %}
-
 {% block content %}
-<h2>📘 Historique de mes annotations</h2>
+<main>
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <h2>📂 Historique de mes annotations</h2>
+    <a href="{% url 'telecharger_annotations_csv' %}" class="button">⬇️ Exporter en CSV</a>
+  </div>
 
-<ul>
-  {% for annotation in annotations %}
-    <li>
-      <a href="{{ annotation.url }}" target="_blank">{{ annotation.url }}</a> —
-      <strong>{% if annotation.is_confirmed_weapon %}✅ Vrai positif{% else %}❌ Faux positif{% endif %}</strong> —
-      {{ annotation.date_annotation|date:"d/m/Y H:i" }}
-    </li>
-  {% empty %}
-    <li>Aucune annotation encore enregistrée.</li>
-  {% endfor %}
-</ul>
+  <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+    <thead>
+      <tr style="background-color: #f3f4f6;">
+        <th style="padding: 10px; border: 1px solid #ccc;">URL</th>
+        <th style="padding: 10px; border: 1px solid #ccc;">Date</th>
+        <th style="padding: 10px; border: 1px solid #ccc;">Résultat</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for annotation in annotations_page %}
+        <tr>
+          <td style="padding: 10px; border: 1px solid #ddd;">
+            <a href="{{ annotation.url }}" target="_blank">{{ annotation.url|truncatechars:100 }}</a>
+          </td>
+          <td style="padding: 10px; border: 1px solid #ddd;">{{ annotation.date_annotation|date:"d/m/Y H:i" }}</td>
+          <td style="padding: 10px; border: 1px solid #ddd;">
+            {% if annotation.is_confirmed_weapon %}
+              <span style="color: green;">✅ Vrai positif</span>
+            {% else %}
+              <span style="color: red;">❌ Faux positif</span>
+            {% endif %}
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="3" style="text-align:center; padding: 20px;">Aucune annotation encore enregistrée.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 
-<a href="{% url 'annotation_dashboard' %}">← Retour à l’annotation</a>
+  {% if annotations_page.paginator.num_pages > 1 %}
+    <div class="pagination">
+      {% if annotations_page.has_previous %}
+        <a href="?page={{ annotations_page.previous_page_number }}" class="page-btn">← Précédent</a>
+      {% endif %}
+      <span class="page-info">Page {{ annotations_page.number }} sur {{ annotations_page.paginator.num_pages }}</span>
+      {% if annotations_page.has_next %}
+        <a href="?page={{ annotations_page.next_page_number }}" class="page-btn">Suivant →</a>
+      {% endif %}
+    </div>
+  {% endif %}
+</main>
 {% endblock %}
+

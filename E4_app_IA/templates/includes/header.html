@@ -1,23 +1,42 @@
 {% load static %}
-<header>
-  <h1>Détection de Produits Suspects</h1>
-  <nav>
-    <a href="{% url 'home' %}">🏠 Accueil</a>
-    {% if user.is_authenticated %}
-      {% if user.role == 'admin' %}
-        <a href="{% url 'admin_dashboard' %}">Tableau admin</a>
-      {% elif user.role == 'analyst' %}
-        <a href="{% url 'annotation_dashboard' %}">Annotation</a>
-        <a href="{% url 'historique_annotations' %}">📂 Historique</a>
+<header style="background-color: #1f2937; padding: 15px 30px; border-bottom: 4px solid #2563eb;">
+  <div style="display: flex; align-items: center; justify-content: space-between;">
+    
+    <!-- Logo + titre -->
+    <div style="display: flex; align-items: center; gap: 20px;">
+      <a href="{% url 'home' %}">
+        <img src="{% static 'img/logo_melobgn.png' %}" alt="Logo" style="max-height: 40px;">
+      </a>
+      <h1 style="margin: 0; font-size: 20px; color: white;">Détection de Produits Suspects</h1>
+    </div>
+
+    <!-- Menu + utilisateur -->
+    <nav style="display: flex; align-items: center; gap: 20px;">
+      <a href="{% url 'home' %}">🏠 Accueil</a>
+
+      {% if user.is_authenticated %}
+        {% if user.role == 'admin' %}
+          <a href="{% url 'admin_dashboard' %}">Tableau admin</a>
+        {% elif user.role == 'analyst' %}
+          <a href="{% url 'annotation_dashboard' %}">Annotation</a>
+          <a href="{% url 'historique_annotations' %}">📂 Historique</a>
+        {% endif %}
+
+        <span style="color: #f3f4f6; font-size: 14px;">
+          Connecté en tant que <strong>{{ user.username }}</strong> ({{ user.role }})
+        </span>
+
+        <form method="POST" action="{% url 'logout' %}" style="display: inline;">
+          {% csrf_token %}
+          <button type="submit" style="background-color: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">
+            Se déconnecter
+          </button>
+        </form>
+
+      {% else %}
+        <a href="{% url 'login' %}">Connexion</a>
       {% endif %}
-      <form method="POST" action="{% url 'logout' %}" style="display: inline;">
-        {% csrf_token %}
-        <button type="submit">
-          Se déconnecter
-        </button>
-      </form>
-    {% else %}
-      <a href="{% url 'login' %}">Connexion</a>
-    {% endif %}
-  </nav>
+    </nav>
+  </div>
 </header>
+
