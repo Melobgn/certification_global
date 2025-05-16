@@ -1,15 +1,19 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .models import VisionPrediction, ErrorImage
 from django.views.decorators.http import require_POST
-from .models import AnnotationManuelle
-from datetime import datetime
-from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
-from django.http import HttpResponseRedirect
-from django.urls import reverse
 from django.contrib import messages
-from django.http import HttpResponse
+from django.contrib.auth import get_user_model
+from django.http import HttpResponseRedirect, HttpResponse
+from django.urls import reverse
+from django.conf import settings
+
+from .models import VisionPrediction, ErrorImage, AnnotationManuelle
+
+from datetime import datetime
+from django.db.models import Count
+import sqlite3
+import json
 import csv
 
 User = get_user_model()
@@ -114,6 +118,55 @@ def telecharger_annotations_csv(request):
         writer.writerow([ann.url, 'Produit suspect', ann.date_annotation.strftime("%d/%m/%Y %H:%M"), resultat])
 
     return response
+
+# ========== DASHBOARD VUE ANALYSTE ==========
+
+def dashboard_data_from_sqlite():
+    db_path = settings.DATABASES['weapon_data']['NAME']
+    with sqlite3.connect(db_path) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) FROM predictions_xgboost WHERE is_weapon_pred = 1")
+        nb_xgb = cursor.fetchone()[0]
+    return nb_xgb
+
+@login_required
+@user_passes_test(is_analyst)
+def dashboard_view(request):
+    nb_xgb = dashboard_data_from_sqlite()
+    nb_yolo = VisionPrediction.objects.count()
+    nb_errors = ErrorImage.objects.values('url').distinct().count()
+    nb_annotations = AnnotationManuelle.objects.using('default').count()
+    nb_vrais = AnnotationManuelle.objects.using('default').filter(is_confirmed_weapon=True).count()
+    nb_faux = AnnotationManuelle.objects.using('default').filter(is_confirmed_weapon=False).count()
+
+    annotations_par_date = (
+        AnnotationManuelle.objects.using('default')
+        .extra(select={'day': "DATE(date_annotation)"})
+        .values('day')
+        .annotate(total=Count('id'))
+        .order_by('day')
+    )
+
+    last_annotations = (
+        AnnotationManuelle.objects.using('default')
+        .select_related('user')
+        .order_by('-date_annotation')[:10]
+    )
+
+    return render(request, 'core/dashboard.html', {
+        'nb_xgb': nb_xgb,
+        'nb_yolo': nb_yolo,
+        'nb_errors': nb_errors,
+        'nb_annotations': nb_annotations,
+        'nb_vrais': nb_vrais,
+        'nb_faux': nb_faux,
+        'annotations_dates_json': json.dumps([
+            {'date': a['day'], 'total': a['total']}
+            for a in annotations_par_date
+        ]),
+        'last_annotations': last_annotations,
+    })
+
 
 # Vue pour l’admin (gestion de l’app)
 @login_required

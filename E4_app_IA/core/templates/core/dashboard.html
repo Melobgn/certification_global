@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+<main>
+  <h2>📊 Tableau de bord des détections</h2>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 40px;">
+    <div class="kpi-box">🔍 Suspects XGBoost<br><span>{{ nb_xgb }}</span></div>
+    <div class="kpi-box">🖼️ Suspects YOLO<br><span>{{ nb_yolo }}</span></div>
+    <div class="kpi-box">🚫 Sans image<br><span>{{ nb_errors }}</span></div>
+    <div class="kpi-box">📝 Annotations<br><span>{{ nb_annotations }}</span></div>
+  </div>
+
+  <div id="bar_annotations" style="height: 400px;"></div>
+  <div id="pie_annotations" style="height: 400px; margin-top: 40px;"></div>
+</main>
+
+<!-- Plotly CDN -->
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+<script>
+  // Données passées depuis Django
+  const annotations = {{ annotations_dates_json|safe }};
+  const dates = annotations.map(x => x.day);
+  const totals = annotations.map(x => x.total);
+
+  const nbVrais = {{ nb_vrais }};
+  const nbFaux = {{ nb_faux }};
+
+  Plotly.newPlot('bar_annotations', [{
+    x: dates,
+    y: totals,
+    type: 'bar',
+    marker: { color: '#2563eb' }
+  }], {
+    title: 'Annotations manuelles par date',
+    xaxis: { title: 'Date' },
+    yaxis: { title: 'Nombre d\'annotations' }
+  });
+
+  Plotly.newPlot('pie_annotations', [{
+    values: [nbVrais, nbFaux],
+    labels: ['✅ Vrai positif', '❌ Faux positif'],
+    type: 'pie',
+    marker: {
+      colors: ['#10b981', '#ef4444']
+    }
+  }], {
+    title: 'Répartition des annotations'
+  });
+</script>
+{% endblock %}

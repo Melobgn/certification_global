@@ -20,6 +20,7 @@
         {% elif user.role == 'analyst' %}
           <a href="{% url 'annotation_dashboard' %}">Annotation</a>
           <a href="{% url 'historique_annotations' %}">📂 Historique</a>
+          <a href="{% url 'dashboard' %}">📊 Dashboard</a>
         {% endif %}
 
         <span style="color: #f3f4f6; font-size: 14px;">

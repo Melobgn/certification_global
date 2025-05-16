@@ -6,7 +6,8 @@ from .views import (
     admin_dashboard,
     soumettre_annotation,
     historique_annotations,
-    telecharger_annotations_csv
+    telecharger_annotations_csv,
+    dashboard_view
 )
 
 urlpatterns = [
@@ -17,4 +18,5 @@ urlpatterns = [
     path('annoter/', soumettre_annotation, name='soumettre_annotation'),
     path('historique/', historique_annotations, name='historique_annotations'),
     path('historique/csv/', telecharger_annotations_csv, name='telecharger_annotations_csv'),
+    path('dashboard/', dashboard_view, name='dashboard'),
 ]
