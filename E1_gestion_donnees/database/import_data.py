@@ -25,6 +25,16 @@ def get_site_name_from_file(filename):
         return 'armurerie_lavaux', 'https://www.armurerie-lavaux.com/sitemap.xml'
     elif 'boutiquedesartsmartiaux' in filename.lower():
         return 'boutiquedesartsmartiaux', 'https://boutiquedesartsmartiaux.com/sitemap.xml'
+    elif 'antretemps' in filename.lower():
+        return 'antretemps', 'https://www.antretemps.com/siteMapsFRProduit1.xml'
+    elif 'bleulibellule' in filename.lower():
+        return 'bleulibellule', 'https://www.bleulibellule.com/1_product_fr_0_sitemap.xml'
+    elif 'espritjeu' in filename.lower():
+        return 'espritjeu', 'https://www.espritjeu.com/siteMapsFRProduit1.xml'
+    elif 'madeinchasse' in filename.lower():
+        return 'madeinchasse', 'https://www.madeinchasse.com/sitemap.xml'
+    elif 'kwon' in filename.lower():
+        return 'kwon', 'https://www.kwon.fr/sitemap.xml'
     else:
         return 'unknown', 'unknown'
 
