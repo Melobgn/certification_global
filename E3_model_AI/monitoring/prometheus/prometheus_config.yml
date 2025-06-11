@@ -17,3 +17,7 @@ scrape_configs:
   - job_name: "node-exporter"
     static_configs:
       - targets: ["node-exporter:9100"]  # Scrute les métriques du système via Node Exporter
+
+  - job_name: 'django_app'
+    static_configs:
+      - targets: ['django:8080']

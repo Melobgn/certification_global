@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -39,10 +40,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'users',
     'core',
-    'widget_tweaks'
+    'widget_tweaks',
+    'django_prometheus',
 ]
 
 MIDDLEWARE = [
+    'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -50,6 +53,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -138,3 +142,61 @@ LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/home/'
 
 LOGOUT_REDIRECT_URL = '/home/'
+
+# Niveau de log configurable via variable d'environnement
+LOG_LEVEL = os.getenv("DJANGO_LOG_LEVEL", "INFO")
+
+# Dossier où stocker les logs (à créer si nécessaire)
+LOG_DIR = os.path.join(BASE_DIR, 'logs')
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+
+    'formatters': {
+        'verbose': {
+            'format': '[{asctime}] {levelname} {name} {message}',
+            'style': '{',
+        },
+    },
+
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+        'global_file': {
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOG_DIR, 'global.log'),
+            'formatter': 'verbose',
+        },
+        'core_file': {
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOG_DIR, 'core.log'),
+            'formatter': 'verbose',
+        },
+        'users_file': {
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOG_DIR, 'users.log'),
+            'formatter': 'verbose',
+        },
+    },
+
+    'root': {
+        'handlers': ['console', 'global_file'],
+        'level': 'INFO',
+    },
+
+    'loggers': {
+        'core': {
+            'handlers': ['core_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'users': {
+            'handlers': ['users_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}

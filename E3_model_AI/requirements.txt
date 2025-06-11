@@ -33,3 +33,4 @@ django-widget-tweaks
 whitenoise
 psycopg2-binary
 gunicorn
+django-prometheus

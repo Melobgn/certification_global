@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
 from django.views.generic import RedirectView
+from django_prometheus import exports
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,4 +27,5 @@ urlpatterns = [
     path('', include('core.urls')),
     path('', include('users.urls')),
     path('', RedirectView.as_view(url='/home/')),
+    path('', include('django_prometheus.urls')),
 ]
