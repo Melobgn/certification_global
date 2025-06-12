@@ -14,7 +14,7 @@ from pathlib import Path
 import os
 import sys
 
-TESTING = len(sys.argv) > 1 and sys.argv[1] == "test"
+TESTING = os.environ.get('TESTING') == 'true'
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
