@@ -65,3 +65,5 @@ jobs:
           coverage run manage.py test core
           coverage report
           coverage html
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings
