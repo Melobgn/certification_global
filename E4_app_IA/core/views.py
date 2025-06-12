@@ -45,10 +45,10 @@ def redirect_view(request):
 def annotation_dashboard(request):
     if getattr(settings, "TESTING", False):
         produits_image = []
+        produits_texte = []
     else:
         produits_image = list(VisionPrediction.objects.filter(confidence_score__isnull=False).order_by('-confidence_score'))
-
-    produits_texte = list(ErrorImage.objects.values('url').distinct())
+        produits_texte = list(ErrorImage.objects.values('url').distinct())
 
     for produit in produits_image:
         produit.type = 'image'
@@ -144,8 +144,14 @@ def dashboard_data_from_sqlite():
 @user_passes_test(is_analyst)
 def dashboard_view(request):
     nb_xgb = dashboard_data_from_sqlite()
-    nb_yolo = VisionPrediction.objects.count()
-    nb_errors = ErrorImage.objects.values('url').distinct().count()
+
+    if getattr(settings, "TESTING", False):
+        nb_yolo = 0
+        nb_errors = 0
+    else:
+        nb_yolo = VisionPrediction.objects.count()
+        nb_errors = ErrorImage.objects.values('url').distinct().count()
+
     nb_annotations = AnnotationManuelle.objects.using('default').count()
     nb_vrais = AnnotationManuelle.objects.using('default').filter(is_confirmed_weapon=True).count()
     nb_faux = AnnotationManuelle.objects.using('default').filter(is_confirmed_weapon=False).count()
