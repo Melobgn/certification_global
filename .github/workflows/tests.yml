@@ -54,6 +54,14 @@ jobs:
           echo "API_PASSWORD défini : ${{ secrets.API_PASSWORD != '' }}"
           echo "SECRET_KEY défini : ${{ secrets.SECRET_KEY != '' }}"
 
-      - name: Run Tests
+      - name: Run Api - ML Tests
         run: |
           pytest E3_model_AI/tests/ --cov=api_ml --cov=model_ml --cov-report=term-missing
+
+      - name: Run Django tests
+        run: |
+          cd E4_app_IA
+          pip install coverage
+          coverage run manage.py test core
+          coverage report
+          coverage html

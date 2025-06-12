@@ -15,7 +15,7 @@ import os
 import requests
 from PIL import Image
 from io import BytesIO
-from fastapi.responses import HTMLResponse, Response, RedirectResponse
+from fastapi.responses import HTMLResponse, Response, RedirectResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from prometheus_client import Gauge, generate_latest
 from evidently import Report, Dataset, DataDefinition
@@ -223,6 +223,9 @@ def xgboost_report_link():
 def yolo_report_link():
     return RedirectResponse(url="/static/yolo_drift_report.html")
 
+@app.get("/metrics")
+def metrics():
+    return PlainTextResponse(generate_latest(), media_type="text/plain")
 
 # @app.get("/monitor/xgboost", response_class=HTMLResponse)
 # def xgboost_report():
