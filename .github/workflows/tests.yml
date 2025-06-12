@@ -60,12 +60,12 @@ jobs:
 
       - name: Create logs directory for Django
         run: mkdir -p E4_app_IA/logs
-        
+
       - name: Run Django tests
         run: |
           cd E4_app_IA
           pip install coverage
-          coverage run manage.py test core
+          coverage run manage.py test
           coverage report
           coverage html
         env:
