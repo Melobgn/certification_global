@@ -12,7 +12,6 @@ class WeaponDataRouter:
         return None
 
     def allow_migrate(self, db, app_label, model_name=None, **hints):
-        is_testing = os.getenv("TESTING", "") == "true"
         if db == 'weapon_data':
-            return is_testing  # 👉 Autoriser uniquement en test
+            return os.environ.get("TESTING") == "true"
         return None
