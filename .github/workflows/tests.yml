@@ -58,6 +58,9 @@ jobs:
         run: |
           pytest E3_model_AI/tests/ --cov=api_ml --cov=model_ml --cov-report=term-missing
 
+      - name: Create logs directory for Django
+        run: mkdir -p E4_app_IA/logs
+        
       - name: Run Django tests
         run: |
           cd E4_app_IA
