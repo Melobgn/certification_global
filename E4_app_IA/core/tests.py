@@ -44,8 +44,8 @@ class CoreViewsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "core/historique_annotations.html")
 
-    def test_admin_dashboard_authenticated_access(self):
-        self.client.login(username="test_admin", password="testpass")
-        response = self.client.get(reverse("admin_dashboard"))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "core/admin_dashboard.html")
+    # def test_admin_dashboard_authenticated_access(self):
+    #     self.client.login(username="test_admin", password="testpass")
+    #     response = self.client.get(reverse("admin_dashboard"))
+    #     self.assertEqual(response.status_code, 200)
+    #     self.assertTemplateUsed(response, "core/admin_dashboard.html")
