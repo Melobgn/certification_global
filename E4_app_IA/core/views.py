@@ -43,13 +43,30 @@ def redirect_view(request):
 @login_required
 @user_passes_test(is_analyst)
 def annotation_dashboard(request):
+    query = request.GET.get('query', '')
+
     if getattr(settings, "TESTING", False):
         produits_image = []
         produits_texte = []
     else:
-        produits_image = list(VisionPrediction.objects.filter(confidence_score__isnull=False).order_by('-confidence_score'))
+        # Filtrage directement dans le queryset
+        if query:
+            produits_image = list(
+                VisionPrediction.objects
+                .filter(confidence_score__isnull=False)
+                .filter(title__icontains=query)  # ← adapte si nécessaire
+                .order_by('-confidence_score')
+            )
+        else:
+            produits_image = list(
+                VisionPrediction.objects
+                .filter(confidence_score__isnull=False)
+                .order_by('-confidence_score')
+            )
+
         produits_texte = list(ErrorImage.objects.values('url').distinct())
 
+    # Marquer le type
     for produit in produits_image:
         produit.type = 'image'
 
@@ -58,16 +75,24 @@ def annotation_dashboard(request):
 
     produits_combines = produits_image + produits_texte
 
-    
+    # Pour filtrer aussi ErrorImage si tu veux
+    if query:
+        produits_filtres = []
+        for p in produits_texte:
+            if query.lower() in p['url'].lower():
+                produits_filtres.append(p)
+        produits_combines = produits_image + produits_filtres
 
+    # Pagination
     page = request.GET.get('page', 1)
     paginator = Paginator(produits_combines, 30)
     page_obj = paginator.get_page(page)
 
-    logger.info(f"{request.user} a consulté le tableau d'annotation avec {len(produits_combines)} produits.")
+    logger.info(f"{request.user} a consulté le tableau d'annotation avec {len(produits_combines)} produits (filtrés: {bool(query)}).")
 
     return render(request, 'core/annotation_dashboard.html', {
         'produits': page_obj,
+        'query': query,
         'year': datetime.now().year
     })
 
@@ -98,16 +123,24 @@ def soumettre_annotation(request):
 @login_required
 @user_passes_test(is_analyst)
 def historique_annotations(request):
-    annotations = AnnotationManuelle.objects.using('default').filter(user=request.user).order_by('-date_annotation')
+    query = request.GET.get('query', '')
+    annotations = AnnotationManuelle.objects.using('default').filter(user=request.user)
+
+    if query:
+        annotations = annotations.filter(url__icontains=query)
+
+    annotations = annotations.order_by('-date_annotation')
     paginator = Paginator(annotations, 20)
     page = request.GET.get('page')
     annotations_page = paginator.get_page(page)
 
-    logger.info(f"{request.user} a consulté son historique d’annotations.")
+    logger.info(f"{request.user} a consulté son historique d’annotations (filtré: {bool(query)}).")
 
     return render(request, 'core/historique_annotations.html', {
-        'annotations_page': annotations_page
+        'annotations_page': annotations_page,
+        'query': query
     })
+
 
 @login_required
 @user_passes_test(is_analyst)

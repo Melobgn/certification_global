@@ -20,7 +20,7 @@
 <script>
   // Données passées depuis Django
   const annotations = {{ annotations_dates_json|safe }};
-  const dates = annotations.map(x => x.day);
+  const dates = annotations.map(x => x.date);
   const totals = annotations.map(x => x.total);
 
   const nbVrais = {{ nb_vrais }};
