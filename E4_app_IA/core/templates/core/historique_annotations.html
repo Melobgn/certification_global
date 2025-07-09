@@ -6,6 +6,12 @@
     <a href="{% url 'telecharger_annotations_csv' %}" class="button">⬇️ Exporter en CSV</a>
   </div>
 
+  <!-- Formulaire de recherche -->
+  <form method="get" action="" class="form-recherche">
+    <input type="text" name="query" placeholder="Rechercher par URL..." value="{{ request.GET.query }}">
+    <button type="submit">Rechercher</button>
+  </form>
+
   <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
     <thead>
       <tr style="background-color: #f3f4f6;">
