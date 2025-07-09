@@ -9,7 +9,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
-          lfs: true  # 🔥 Active Git LFS si utilisé
+          lfs: true 
 
       - name: Set up Python
         uses: actions/setup-python@v3
@@ -38,18 +38,18 @@ jobs:
       - name: Vérifier si le modèle XGBoost est bien là
         run: |
           if [ ! -f "E3_model_AI/model_ml/xgboost_weapon_classifier.pkl" ]; then
-            echo "❌ Le modèle XGBoost n'a pas été trouvé !"
+            echo "Le modèle XGBoost n'a pas été trouvé !"
             exit 1
           fi
           if [ ! -f "E3_model_AI/model_ml/tfidf_vectorizer.pkl" ]; then
-            echo "❌ Le vectorizer n'a pas été trouvé !"
+            echo "Le vectorizer n'a pas été trouvé !"
             exit 1
           fi
-          echo "✅ Le modèle et le vectorizer sont présents."
+          echo "Le modèle et le vectorizer sont présents."
 
       - name: Vérifier les variables d'environnement
         run: |
-          echo "🔍 Vérification des variables d'environnement"
+          echo "Vérification des variables d'environnement"
           echo "API_USERNAME défini : ${{ secrets.API_USERNAME != '' }}"
           echo "API_PASSWORD défini : ${{ secrets.API_PASSWORD != '' }}"
           echo "SECRET_KEY défini : ${{ secrets.SECRET_KEY != '' }}"

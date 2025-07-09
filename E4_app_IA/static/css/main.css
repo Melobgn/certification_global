@@ -344,3 +344,40 @@ tr:nth-child(even) {
     color: #111827;
   }
   
+
+  /* Style du formulaire de recherche */
+.form-recherche {
+    margin: 20px 0;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  
+.form-recherche input[type="text"] {
+padding: 8px 12px;
+border: 1px solid #ccc;
+border-radius: 6px;
+flex: 1;
+transition: border-color 0.3s;
+}
+
+.form-recherche input[type="text"]:focus {
+border-color: #007bff;
+outline: none;
+}
+
+.form-recherche button {
+padding: 8px 16px;
+background-color: #007bff;
+border: none;
+border-radius: 6px;
+color: white;
+font-weight: 500;
+cursor: pointer;
+transition: background-color 0.3s;
+}
+
+.form-recherche button:hover {
+background-color: #0056b3;
+}
+  

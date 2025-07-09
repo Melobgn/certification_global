@@ -5,6 +5,12 @@
 <main>
   <h2>🔎 Produits à examiner</h2>
 
+  <!-- ✅ Formulaire de recherche -->
+<form method="get" action="">
+  <input type="text" name="query" placeholder="Rechercher par titre ou URL..." value="{{ request.GET.query }}" class="form-control" style="width: 300px; display: inline-block;">
+  <button type="submit" class="btn btn-primary">Rechercher</button>
+</form>
+
   <!-- ✅ Message de confirmation -->
   {% if messages %}
     <div class="alert-box">

@@ -9,6 +9,10 @@ YOLO_MODEL="/home/utilisateur/Documents/Certification/certification_global/E3_mo
 VISION_DIR="/home/utilisateur/Documents/Certification/certification_global/E3_model_AI/model_ml/vision_results" # Répertoire des résultats de vision
 XGBOOST_ENRICHED_OUTPUT="/home/utilisateur/Documents/Certification/certification_global/E3_model_AI/model_ml/predictions_xgboost_with_images.csv"
 
+# # Transformer la table produit en CSV pour traitement
+# echo "Création du fichier CSV contacténé de scraping"
+# python3 /home/utilisateur/Documents/Certification/certification_global/E3_model_AI/model_ml/table_to_csv.py
+
 # # Vérifier que le fichier concaténé existe
 # if [ ! -f "$SCRAPING_OUTPUT" ]; then
 #     echo "Erreur : Fichier $SCRAPING_OUTPUT introuvable après le scraping."
@@ -24,7 +28,7 @@ XGBOOST_ENRICHED_OUTPUT="/home/utilisateur/Documents/Certification/certification
 # # Initialisation de la référence Evidently (XGBoost) si elle n'existe pas
 # REF_FILE="/home/utilisateur/Documents/Certification/certification_global/E3_model_AI/monitoring/evidently/xgboost_reference_sample.csv"
 # if [ ! -f "$REF_FILE" ]; then
-#     echo "📌 Initialisation de la référence Evidently XGBoost..."
+#     echo "Initialisation de la référence Evidently XGBoost..."
 #     python3 -c "
 # import pandas as pd
 # df = pd.read_excel('$ANNOTATIONS_FILE')
@@ -36,7 +40,7 @@ XGBOOST_ENRICHED_OUTPUT="/home/utilisateur/Documents/Certification/certification
 # fi
 
 # # Étape 2 : Exécuter la prédiction avec le modèle XGBoost
-# echo "🔍 Lancement des prédictions XGBoost..."
+# echo "Lancement des prédictions XGBoost..."
 # python3 /home/utilisateur/Documents/Certification/certification_global/E3_model_AI/model_ml/test_classification_model.py \
 #     --input "$SCRAPING_OUTPUT" \
 #     --annotations "$ANNOTATIONS_FILE" \
@@ -46,7 +50,7 @@ XGBOOST_ENRICHED_OUTPUT="/home/utilisateur/Documents/Certification/certification
 #     echo "Erreur lors de l'exécution des prédictions XGBoost. Arrêt du pipeline."
 #     exit 1
 # fi
-# echo "✅ Prédictions XGBoost terminées avec succès. Résultats dans $XGBOOST_OUTPUT."
+# echo "Prédictions XGBoost terminées avec succès. Résultats dans $XGBOOST_OUTPUT."
 
 # # Vérifier que le fichier des prédictions a bien été généré
 # if [ ! -f "$XGBOOST_OUTPUT" ]; then
@@ -57,21 +61,21 @@ XGBOOST_ENRICHED_OUTPUT="/home/utilisateur/Documents/Certification/certification
 # echo "Pipeline XGBoost terminé avec succès."
 
 # # Étape 2.5 : Ajout des URLs des images aux prédictions
-# echo "🔍 Ajout des URLs des images aux prédictions..."
+# echo "Ajout des URLs des images aux prédictions..."
 # python3 /home/utilisateur/Documents/Certification/certification_global/E3_model_AI/model_ml/images_to_predictions.py \
 #     --input "$XGBOOST_OUTPUT" \
 #     --db "/home/utilisateur/Documents/Certification/certification_global/E1_gestion_donnees/database/weapon_detection.db" \
 #     --output "$XGBOOST_ENRICHED_OUTPUT"
 
 # if [ $? -ne 0 ]; then
-#     echo "❌ Erreur lors de l'ajout des URLs d'images aux prédictions."
+#     echo "Erreur lors de l'ajout des URLs d'images aux prédictions."
 #     exit 1
 # fi
-# echo "✅ URLs des images ajoutées avec succès. Fichier mis à jour : $XGBOOST_ENRICHED_OUTPUT"
+# echo "URLs des images ajoutées avec succès. Fichier mis à jour : $XGBOOST_ENRICHED_OUTPUT"
 
 # # Vérifier que le fichier enrichi a bien été généré
 # if [ ! -f "$XGBOOST_ENRICHED_OUTPUT" ]; then
-#     echo "❌ Erreur : Fichier $XGBOOST_ENRICHED_OUTPUT introuvable après l'ajout des images."
+#     echo "Erreur : Fichier $XGBOOST_ENRICHED_OUTPUT introuvable après l'ajout des images."
 #     exit 1
 # fi
 
@@ -98,11 +102,11 @@ XGBOOST_ENRICHED_OUTPUT="/home/utilisateur/Documents/Certification/certification
 
 # Etape 4 : Enregistrer les résultats dans la base de données weapon_detection.db
 
-python3 predictions_to_db.py \
-  --xgb "$XGBOOST_OUTPUT" \
-  --yolo "$VISION_OUTPUT" \
-  --errors "${VISION_DIR}/error_images.csv" \
-  --db "/home/utilisateur/Documents/Certification/certification_global/E1_gestion_donnees/database/weapon_detection.db"
+# python3 predictions_to_db.py \
+#   --xgb "$XGBOOST_OUTPUT" \
+#   --yolo "$VISION_OUTPUT" \
+#   --errors "${VISION_DIR}/error_images.csv" \
+#   --db "/home/utilisateur/Documents/Certification/certification_global/E1_gestion_donnees/database/weapon_detection.db"
 
 
 # # Pipeline terminé
@@ -116,6 +120,6 @@ python3 predictions_to_db.py \
 #     cp "$YOLO_PROD" "$YOLO_REF"
 # fi
 
-# # Lancer le monitoring Evidently
-# echo "Lancement du monitoring Evidently..."
-# python3 /home/utilisateur/Documents/Certification/certification_global/E3_model_AI/monitoring/evidently/run_monitoring.py
+# Lancer le monitoring Evidently
+echo "Lancement du monitoring Evidently..."
+python3 /home/utilisateur/Documents/Certification/certification_global/E3_model_AI/monitoring/evidently/run_monitoring_local.py

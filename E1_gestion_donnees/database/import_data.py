@@ -5,10 +5,10 @@ import os
 
 def create_database():
     """Crée la base de données et les tables"""
-    conn = sqlite3.connect('database/weapon_detection.db')
+    conn = sqlite3.connect('weapon_detection.db')
     
     # Lire et exécuter le script schema.sql
-    with open('database/schema.sql', 'r') as schema_file:
+    with open('schema.sql', 'r') as schema_file:
         conn.executescript(schema_file.read())
     
     conn.close()
@@ -35,16 +35,20 @@ def get_site_name_from_file(filename):
         return 'madeinchasse', 'https://www.madeinchasse.com/sitemap.xml'
     elif 'kwon' in filename.lower():
         return 'kwon', 'https://www.kwon.fr/sitemap.xml'
+    elif 'gunevasion' in filename.lower():
+        return 'gunevasion', 'https://air-soft.gun-evasion.com/siteMapsFRProduit1.xml'
+    elif 'opsstore' in filename.lower():
+        return 'opsstore', 'https://www.ops-store.fr/siteMapsFRProduit1.xml'
     else:
         return 'unknown', 'unknown'
 
 def import_products():
     """Importe les données des fichiers CSV dans la base"""
-    conn = sqlite3.connect('database/weapon_detection.db')
+    conn = sqlite3.connect('weapon_detection.db')
     cursor = conn.cursor()
 
     # Récupérer tous les fichiers CSV à la racine
-    csv_files = glob.glob('*.csv')
+    csv_files = glob.glob('../*.csv')
     
     for csv_file in csv_files:
         print(f"Importing {csv_file}...")

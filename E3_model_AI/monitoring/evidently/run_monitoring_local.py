@@ -3,8 +3,8 @@ from evidently.presets import DataDriftPreset, DataSummaryPreset
 import pandas as pd
 
 # === Charger les données ===
-xgb_ref = pd.read_csv("xgboost_reference_sample.csv")
-xgb_prod = pd.read_csv("xgboost_production_sample.csv")
+xgb_ref = pd.read_csv("/home/utilisateur/Documents/Certification/certification_global/E3_model_AI/monitoring/evidently/xgboost_reference_sample.csv")
+xgb_prod = pd.read_csv("/home/utilisateur/Documents/Certification/certification_global/E3_model_AI/monitoring/evidently/xgboost_production_sample.csv")
 
 # ✅ Renommer target en prédiction pour matcher avec prod
 xgb_ref = xgb_ref.rename(columns={"is_weapon": "is_weapon_pred"})

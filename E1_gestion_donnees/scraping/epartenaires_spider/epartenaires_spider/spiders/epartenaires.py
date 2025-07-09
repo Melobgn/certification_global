@@ -82,7 +82,7 @@ class EpartenairesSpider(scrapy.Spider):
         
     def start_requests(self):
         # Sitemaps des sites partenaires à scraper
-        sitemap_url = 'https://www.kwon.fr/sitemap.xml'
+        sitemap_url = 'https://air-soft.gun-evasion.com/siteMapsFRProduit1.xml'
         yield scrapy.Request(url=sitemap_url, callback=self.parse_sitemap, dont_filter=True)
             
 

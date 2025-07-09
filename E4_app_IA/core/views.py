@@ -58,6 +58,8 @@ def annotation_dashboard(request):
 
     produits_combines = produits_image + produits_texte
 
+    
+
     page = request.GET.get('page', 1)
     paginator = Paginator(produits_combines, 30)
     page_obj = paginator.get_page(page)
