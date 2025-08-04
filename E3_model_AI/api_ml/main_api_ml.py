@@ -18,6 +18,7 @@ from io import BytesIO
 from fastapi.responses import HTMLResponse, Response, RedirectResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from prometheus_client import Gauge, generate_latest
+from prometheus_fastapi_instrumentator import Instrumentator
 from evidently import Report, Dataset, DataDefinition
 from evidently.presets import DataDriftPreset
 
@@ -61,6 +62,10 @@ app = FastAPI(
     description="API combinant XGBoost (texte) et YOLO (image) pour détecter les armes sur des produits.",
     version="2.0.0"
 )
+
+# Instrumentateur Prometheus
+instrumentator = Instrumentator()
+instrumentator.instrument(app).expose(app, include_in_schema=False, should_gzip=True)
 
 # Monter les fichiers Evidently statiques
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "monitoring" / "evidently")), name="static")

@@ -84,15 +84,27 @@ services:
       - monitoring_network
     volumes:
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning  # Monte tout le provisioning
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=password123
+    env_file:
+      - ./monitoring/.env
 
   node-exporter:
     image: prom/node-exporter:latest
     container_name: node-exporter
     ports:
       - "9100:9100"  # Node Exporter accessible sur ce port
+    networks:
+      - monitoring_network
+      
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    ports:
+      - "8082:8080"  # UI accessible sur localhost:8082, pas de conflit
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
     networks:
       - monitoring_network
 
