@@ -70,7 +70,7 @@ services:
     networks:
       - monitoring_network
     volumes:
-      - ./E3_model_AI/monitoring/prometheus/prometheus_config.yml:/etc/prometheus/prometheus.yml
+      - ./certification_global/E3_model_AI/monitoring/prometheus/prometheus_config.yml:/etc/prometheus/prometheus.yml
 
   grafana:
     image: grafana/grafana:latest
