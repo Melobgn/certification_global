@@ -23,6 +23,11 @@ from evidently import Report, Dataset, DataDefinition
 from evidently.presets import DataDriftPreset
 
 import pandas as pd
+import logging
+
+# Configuration du logging
+logging.basicConfig(level=logging.INFO)
+log = logging.getLogger(__name__)
 
 # Charger le fichier .env
 env_path = Path(__file__).parent / ".env"
@@ -44,6 +49,18 @@ else:
 MODEL_XGB_PATH = BASE_DIR / "model_ml" / "xgboost_weapon_classifier.pkl"
 VECTORIZER_PATH = BASE_DIR / "model_ml" / "tfidf_vectorizer.pkl"
 MODEL_YOLO_PATH = BASE_DIR / "model_ml" / "best.pt"
+
+log.info(f"IS_DOCKER = {IS_DOCKER}")
+log.info(f"IS_CI = {IS_CI}")
+log.info(f"BASE_DIR = {BASE_DIR}")
+log.info(f"MODEL_XGB_PATH = {MODEL_XGB_PATH}")
+log.info(f"VECTORIZER_PATH = {VECTORIZER_PATH}")
+log.info(f"MODEL_YOLO_PATH = {MODEL_YOLO_PATH}")
+log.info(f"XGB exists? {MODEL_XGB_PATH.exists()}")
+log.info(f"VECTORIZER exists? {VECTORIZER_PATH.exists()}")
+log.info(f"YOLO exists? {MODEL_YOLO_PATH.exists()}")
+
+
 
 if not MODEL_XGB_PATH.exists() or not VECTORIZER_PATH.exists():
     raise FileNotFoundError("Le modèle XGBoost ou le vectorizer est introuvable.")
