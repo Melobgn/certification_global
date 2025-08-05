@@ -26,3 +26,4 @@ EXPOSE 8000
 # Commande pour démarrer l'API avec Uvicorn
 CMD ["uvicorn", "api_ml.main_api_ml:app", "--host", "0.0.0.0", "--port", "8000"]
 
+ENV PYTHONPATH=/app
