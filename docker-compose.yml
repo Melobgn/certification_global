@@ -12,9 +12,7 @@ services:
     networks:
       - monitoring_network
     volumes:
-      - ./E3_model_AI/model_ml:/app/model_ml
-      - ./E3_model_AI/tests:/app/tests
-      - ./E3_model_AI/monitoring/evidently:/app/monitoring/evidently
+      - ./E3_model_AI:/app
     restart: unless-stopped
     env_file:
       - .env
