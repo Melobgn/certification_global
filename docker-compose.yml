@@ -109,7 +109,7 @@ services:
       context: ./E4_app_IA
       dockerfile: ./Dockerfile
     ports:
-      - "8080:8080"
+      - "8090:8080"
     volumes:
       - ./E4_app_IA:/app
       - ./E1_gestion_donnees/database:/app/database
