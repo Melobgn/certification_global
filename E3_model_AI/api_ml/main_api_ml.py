@@ -67,8 +67,9 @@ app = FastAPI(
 instrumentator = Instrumentator()
 instrumentator.instrument(app).expose(app, include_in_schema=False, should_gzip=True)
 
-# Monter les fichiers Evidently statiques
-app.mount("/static", StaticFiles(directory=str(BASE_DIR / "monitoring" / "evidently")), name="static")
+static_dir = BASE_DIR / "monitoring" / "evidently"
+if static_dir.exists():
+    app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 
 # ==============================
 # AUTHENTIFICATION
