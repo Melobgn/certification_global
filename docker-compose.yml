@@ -1,3 +1,5 @@
+version: '3.8'
+
 networks:
   monitoring_network:
     driver: bridge
@@ -8,14 +10,17 @@ services:
       context: ./E3_model_AI
       dockerfile: ./api_ml/Dockerfile
     ports:
-      - "8010:8000"
+      - "8000:8000"
     networks:
       - monitoring_network
     volumes:
-      - ./E3_model_AI:/app
+      - ./E3_model_AI/api_ml/.env:/app/api_ml/.env
+      - ./E3_model_AI/model_ml:/app/model_ml
+      - ./E3_model_AI/tests:/app/tests
+      - ./E3_model_AI/monitoring/evidently:/app/monitoring/evidently
     restart: unless-stopped
     env_file:
-      - .env
+      - E3_model_AI/api_ml/.env
     command: ["uvicorn", "api_ml.main_api_ml:app", "--host", "0.0.0.0", "--port", "8000"]
 
   streamlit:
@@ -34,7 +39,7 @@ services:
     environment:
       - API_URL=http://api:8000
     env_file:
-      - .env
+      - E3_model_AI/api_ml/.env
     command: ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
 
   # tests:
@@ -68,8 +73,7 @@ services:
     networks:
       - monitoring_network
     volumes:
-      - ./E3_model_AI/monitoring/prometheus:/etc/prometheus
-
+      - ./E3_model_AI/monitoring/prometheus/prometheus_config.yml:/etc/prometheus/prometheus.yml
 
   grafana:
     image: grafana/grafana:latest
@@ -80,7 +84,7 @@ services:
     volumes:
       - ./E3_model_AI/monitoring/grafana/provisioning:/etc/grafana/provisioning
     env_file:
-      - .env
+      - ./E3_model_AI/monitoring/.env
 
   node-exporter:
     image: prom/node-exporter:latest
@@ -108,10 +112,131 @@ services:
       context: ./E4_app_IA
       dockerfile: ./Dockerfile
     ports:
-      - "8090:8080"
+      - "8080:8080"
     volumes:
       - ./E4_app_IA:/app
       - ./E1_gestion_donnees/database:/app/database
     networks:
       - monitoring_network
+    env_file:
+      - .env
     command: ["python", "manage.py", "runserver", "0.0.0.0:8080"]
+
+
+# networks:
+#   monitoring_network:
+#     driver: bridge
+
+# services:
+#   api:
+#     build:
+#       context: ./E3_model_AI
+#       dockerfile: ./api_ml/Dockerfile
+#     ports:
+#       - "8010:8000"
+#     networks:
+#       - monitoring_network
+#     volumes:
+#       - ./E3_model_AI:/app
+#     restart: unless-stopped
+#     env_file:
+#       - .env
+#     command: ["uvicorn", "api_ml.main_api_ml:app", "--host", "0.0.0.0", "--port", "8000"]
+
+#   streamlit:
+#     build:
+#       context: ./E3_model_AI
+#       dockerfile: ./app_streamlit/Dockerfile
+#     ports:
+#       - "8501:8501"
+#     depends_on:
+#       - api
+#     restart: unless-stopped
+#     networks:
+#       - monitoring_network
+#     volumes:
+#       - ./E3_model_AI/app_streamlit:/app
+#     environment:
+#       - API_URL=http://api:8000
+#     env_file:
+#       - .env
+#     command: ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+
+#   # tests:
+#   #   build:
+#   #     context: ./E3_model_AI
+#   #     dockerfile: ./api_ml/Dockerfile
+#   #   networks:
+#   #     - monitoring_network
+#   #   volumes:
+#   #     - ./E3_model_AI/tests:/app/tests
+#   #     - ./E3_model_AI/model_ml:/app/model_ml
+#   #   depends_on:
+#   #     - api
+#   #   environment:
+#   #     - PYTHONPATH=/app
+#   #   command: ["pytest", "tests/", "--cov=api_ml", "--cov-report=term-missing"]
+
+#   evidently-app:
+#     build:
+#       context: ./E3_model_AI
+#       dockerfile: ./monitoring/evidently/Dockerfile
+#     ports:
+#       - "8001:8001"
+#     networks:
+#       - monitoring_network
+
+#   prometheus:
+#     image: prom/prometheus:latest
+#     ports:
+#       - "9090:9090"
+#     networks:
+#       - monitoring_network
+#     volumes:
+#       - ./E3_model_AI/monitoring/prometheus:/etc/prometheus
+
+
+#   grafana:
+#     image: grafana/grafana:latest
+#     ports:
+#       - "3000:3000"
+#     networks:
+#       - monitoring_network
+#     volumes:
+#       - ./E3_model_AI/monitoring/grafana/provisioning:/etc/grafana/provisioning
+#     env_file:
+#       - .env
+
+#   node-exporter:
+#     image: prom/node-exporter:latest
+#     container_name: node-exporter
+#     ports:
+#       - "9100:9100"
+#     networks:
+#       - monitoring_network
+
+#   cadvisor:
+#     image: gcr.io/cadvisor/cadvisor:latest
+#     container_name: cadvisor
+#     ports:
+#       - "8082:8080"
+#     volumes:
+#       - /:/rootfs:ro
+#       - /var/run:/var/run:ro
+#       - /sys:/sys:ro
+#       - /var/lib/docker/:/var/lib/docker:ro
+#     networks:
+#       - monitoring_network
+
+#   django:
+#     build:
+#       context: ./E4_app_IA
+#       dockerfile: ./Dockerfile
+#     ports:
+#       - "8090:8080"
+#     volumes:
+#       - ./E4_app_IA:/app
+#       - ./E1_gestion_donnees/database:/app/database
+#     networks:
+#       - monitoring_network
+#     command: ["python", "manage.py", "runserver", "0.0.0.0:8080"]
