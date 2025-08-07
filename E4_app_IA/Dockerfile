@@ -7,4 +7,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8080"]
+# Créer le dossier staticfiles si nécessaire
+RUN mkdir -p /app/staticfiles
+
+
+
+VOLUME /app/staticfiles
+
+
