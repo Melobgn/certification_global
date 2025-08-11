@@ -123,8 +123,8 @@ services:
     build:
       context: ./E4_app_IA
       dockerfile: ./Dockerfile
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"
     volumes:
       - ./E4_app_IA:/app
       - django_static:/app/staticfiles 
