@@ -34,6 +34,21 @@ services:
     env_file:
       - E3_model_AI/api_ml/.env
     command: ["uvicorn", "api_ml.main_api_ml:app", "--host", "0.0.0.0", "--port", "8000"]
+    
+  db_api:
+    build:
+      context: ./E1_gestion_donnees
+      dockerfile: ./api/Dockerfile
+    ports:
+      - "7000:8000"            # hôte:container
+    networks:
+      - monitoring_network
+    volumes:
+      - ./E1_gestion_donnees/database:/app/database:rw
+      - ./E1_gestion_donnees/api/.env:/app/api/.env
+    env_file:
+      - ./E1_gestion_donnees/api/.env
+    restart: unless-stopped
 
   streamlit:
     build:
