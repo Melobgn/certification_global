@@ -76,7 +76,7 @@ coverage report
 
 
 ## Licence
-Aucune licence explicite n’est fournie dans ce dépôt. Veuillez contacter l’auteur ou l’équipe responsable avant toute utilisation en production ou redistribution.
+Aucune licence explicite n’est fournie dans ce dépôt. Veuillez contacter l’auteur avant toute utilisation en production ou redistribution.
 
 Ce README global offre une vue d’ensemble pour naviguer et démarrer rapidement avec le projet ; référez‑vous aux sous‑répertoires pour une documentation plus détaillée.
   
